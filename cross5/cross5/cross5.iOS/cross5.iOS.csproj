@@ -58,8 +58,20 @@
     <ConsolePause>false</ConsolePause>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <MtouchDebug>true</MtouchDebug>
+    <MtouchDebug>True</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchSdkVersion>9.2</MtouchSdkVersion>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchProfiling>False</MtouchProfiling>
+    <MtouchFastDev>False</MtouchFastDev>
+    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/mobile/test/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/ -lSharedLibrary1.iOS -force_load /Users/lgl/vcremote/G/Program/mobile/test/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/libSharedLibrary1.iOS.a"</MtouchExtraArgs>
+    <MtouchUseLlvm>False</MtouchUseLlvm>
+    <MtouchUseThumb>False</MtouchUseThumb>
+    <MtouchUseSGen>False</MtouchUseSGen>
+    <MtouchUseRefCounting>False</MtouchUseRefCounting>
+    <MtouchOptimizePNGs>True</MtouchOptimizePNGs>
+    <DeviceSpecificBuild>False</DeviceSpecificBuild>
+    <MtouchI18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>

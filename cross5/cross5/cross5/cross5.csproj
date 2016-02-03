@@ -52,6 +52,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="GettingStarted.Xamarin" />
     <None Include="packages.config" />
   </ItemGroup>
