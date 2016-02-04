@@ -3,13 +3,13 @@
 
 extern "C"
 {
-	char * AndroidInfo()
+	char * dllInfo()
 	{
 		return SharedLibrary1::getTemplateInfo();
 	}
 
-	int AndroidInt()
+	int dllInt()
 	{
-		return 1002;
+		return 1001;
 	}
 }

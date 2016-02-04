@@ -2,13 +2,13 @@
 
 extern "C"
 {
-	char * iOSInfo()
+	char * dllInfo()
 	{
 		return SharedLibrary1::getTemplateInfo();
 	}
 
-	int iOSInt()
+	int dllInt()
 	{
-		return 1002;
+		return 1003;
 	}
 }

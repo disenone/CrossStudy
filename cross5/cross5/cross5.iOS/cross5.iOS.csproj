@@ -29,7 +29,7 @@
     <MtouchSdkVersion>9.2</MtouchSdkVersion>
     <MtouchProfiling>False</MtouchProfiling>
     <MtouchFastDev>False</MtouchFastDev>
-    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/mobile/test/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/ -lSharedLibrary1.iOS -force_load /Users/lgl/vcremote/G/Program/mobile/test/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/libSharedLibrary1.iOS.a"</MtouchExtraArgs>
+    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/Github/CrossStudy/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/ -lSharedLibrary1.iOS -force_load /Users/lgl/vcremote/G/Program/Github/CrossStudy/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/libSharedLibrary1.iOS.a"</MtouchExtraArgs>
     <MtouchUseLlvm>False</MtouchUseLlvm>
     <MtouchUseThumb>False</MtouchUseThumb>
     <MtouchUseSGen>False</MtouchUseSGen>

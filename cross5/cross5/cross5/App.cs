@@ -8,30 +8,30 @@ using Xamarin.Forms;
 
 namespace cross5
 {
-//     public class MyClass
-//     {
-//         [DllImport("libSharedLibrary1.so")]
-//         public extern static string AndroidInfo();
-// 
-//         [DllImport("libSharedLibrary1.so")]
-//         public extern static int AndroidInt();
-//     }
-    
-    public class MyClassiOS
+    public class MyClass
     {
-        [DllImport("__Internal")]
-        public extern static string iOSInfo();
+        [DllImport("libSharedLibrary1")]
+        public extern static string dllInfo();
 
-        [DllImport("__Internal")]
-        public extern static int iOSInt();
+        [DllImport("libSharedLibrary1")]
+        public extern static int dllInt();
     }
+    
+//     public class MyClassiOS
+//     {
+//         [DllImport("__Internal")]
+//         public extern static string iOSInfo();
+// 
+//         [DllImport("__Internal")]
+//         public extern static int iOSInt();
+//     }
 
     public class App : Application
     {
         public App()
         {
             //var tt = MyClass.AndroidInfo();
-            var it = MyClassiOS.iOSInt().ToString();
+            var it = MyClass.dllInt().ToString();
             // The root page of your application
             MainPage = new ContentPage
             {
