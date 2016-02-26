@@ -6,6 +6,7 @@ using System.Text;
 using Xamarin.Forms;
 using System.Runtime.InteropServices;
 
+
 namespace pimage
 {
     public class cimage
@@ -17,12 +18,17 @@ namespace pimage
         public extern static int dllInt();
     }
 
+    public interface ImageIO
+    {
+        void loadImage(string filename);
+    }
 
     public class App : Application
     {
         public App()
         {
             var it = cimage.dllInt().ToString();
+            DependencyService.Get<ImageIO>().loadImage("1.png");
             // The root page of your application
             MainPage = new ContentPage
             {
@@ -54,5 +60,6 @@ namespace pimage
         {
             // Handle when your app resumes
         }
+
     }
 }
