@@ -2,48 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using Xamarin.Forms;
-using System.Runtime.InteropServices;
+using pimage.Tools;
+using pimage.Pages;
 
 
 namespace pimage
 {
-    public class cimage
-    {
-        [DllImport("libcimage")]
-        public extern static string dllInfo();
-
-        [DllImport("libcimage")]
-        public extern static int dllInt();
-    }
-
-    public interface ImageIO
-    {
-        void loadImage(string filename);
-    }
-
     public class App : Application
     {
         public App()
         {
-            var it = cimage.dllInt().ToString();
-            DependencyService.Get<ImageIO>().loadImage("1.png");
-            // The root page of your application
-            MainPage = new ContentPage
-            {
-                Content = new StackLayout
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    Children = {
-                        new Label {
-                            XAlign = TextAlignment.Center,
-                            //Text = "Welcome to Xamarin Forms!"
-                            Text = it
-                        }
-                    }
-                }
-            };
+            //var it = cimage.dllInt().ToString();
+            //var bimgs = DependencyService.Get<ImageIO>().loadImage("1.png");
+            MainPage = new NavigationPage(new HomePage());
         }
 
         protected override void OnStart()
