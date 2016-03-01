@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Text;
 using UIKit;
 using CoreGraphics;
-using pimage.iOS;
 
 
-[assembly: Xamarin.Forms.Dependency(typeof(ImageIOIOS))]
-namespace pimage.iOS
+[assembly: Xamarin.Forms.Dependency(typeof(pimage.iOS.Tools.ImageIOIOS))]
+namespace pimage.iOS.Tools
 {
-    public class ImageIOIOS : Tools.ImageIO
+    public class ImageIOIOS : pimage.Tools.ImageIO
     {
-        public byte[] LoadImage(string filename)
+        public byte[] LoadImageFromEmbeddedResource(string filename)
         {
+
             var uimg = UIImage.FromFile(filename);
             var cimg = uimg.CGImage;
 

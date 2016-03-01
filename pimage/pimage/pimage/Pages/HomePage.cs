@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using Xamarin.Forms;
 using pimage.Tools;
+using System.Reflection;
 
 
 namespace pimage.Pages
@@ -23,7 +24,7 @@ namespace pimage.Pages
                     await this.Navigation.PushAsync(page);
                 });
 
-            byte[] bimgs = DependencyService.Get<ImageIO>().LoadImage("1.png");
+            byte[] bimgs = DependencyService.Get<ImageIO>().LoadImageFromEmbeddedResource("1.png");
 
             bimgs = DependencyService.Get<ImageIO>().ToPng(bimgs, 1242);
 
@@ -34,12 +35,13 @@ namespace pimage.Pages
             Image image = new Image
             {
                 Source = ImageSource.FromStream(() => stream),
-                //VerticalOptions = LayoutOptions.CenterAndExpand
+                VerticalOptions = LayoutOptions.CenterAndExpand
             };
 
             Debug.WriteLine("Image info: " + image.Width.ToString() + " " + image.Height.ToString());
-            //Console.WriteLine("bytesperrow: " + cimg.BytesPerRow.ToString());
-            
+            Debug.WriteLine("byte info: (" + bimgs[0].ToString() + ", " + 
+                bimgs[1].ToString() + ", " + bimgs[2].ToString() + ", " + bimgs[2].ToString() + ")");
+
             this.Title = "Image Show";
             this.Content = new StackLayout
             {

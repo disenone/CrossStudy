@@ -18,7 +18,7 @@ namespace pimage.Tools
 
     public interface ImageIO
     {
-        byte[] LoadImage(string filename);
+        byte[] LoadImageFromEmbeddedResource(string filename);
 
         byte[] ToPng(byte[] rgba, int width);
     }
