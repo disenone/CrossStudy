@@ -26,6 +26,11 @@ namespace pimage.Pages
 
             byte[] bimgs = DependencyService.Get<ImageIO>().LoadImageFromEmbeddedResource("1.png");
 
+            var cimg = new cimage();
+            cimg.AddImage(bimgs, 1242);
+
+            cimg.testImageBuffer();
+
             bimgs = DependencyService.Get<ImageIO>().ToPng(bimgs, 1242);
 
             var stream = new MemoryStream(bimgs);

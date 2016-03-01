@@ -1,9 +1,14 @@
+#include <iostream>
 #include "cimage.h"
+
+
+using namespace cimage;
+using namespace std;
 
 #define PLATFORM_ANDROID 0
 #define PLATFORM_IOS 1
 
-char * cimage::getTemplateInfo()
+char * getTemplateInfo()
 {
 #if PLATFORM == PLATFORM_IOS
 	static char info[] = "Platform for iOS";
@@ -16,10 +21,16 @@ char * cimage::getTemplateInfo()
 	return info;
 }
 
-cimage::cimage()
+int cimage::testImageBuffer(CImageBuffer* pbuf, int len)
 {
-}
+	cout << pbuf << ", " << len << endl;
 
-cimage::~cimage()
-{
+	CImageBuffer& img = pbuf[0];
+
+	for (int i = 0; i < img.length; i += 4)
+	{
+		img.buf[i] = 255;
+	}
+
+	return pbuf[0].buf[3];
 }

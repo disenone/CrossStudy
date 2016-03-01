@@ -1,8 +1,13 @@
 #pragma once
 
-class cimage {
-public:
-    static char * getTemplateInfo();
-    cimage();
-    ~cimage();
-};
+namespace cimage
+{
+	struct CImageBuffer
+	{
+		unsigned char* buf;
+		int length;
+		int width;
+	};
+
+	int testImageBuffer(CImageBuffer* pbuf, int len);
+}
