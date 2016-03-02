@@ -14,8 +14,9 @@ namespace pimage.Tools
     {
         public CImageBuffer(byte[] bytebuf, int width)
         {
-            Length = bytebuf.Length;
-            Width = width;
+            Length = (uint)bytebuf.Length;
+            Width = (uint)width;
+            Selfgc = 0;
             unsafe
             {
                 fixed (byte* p = &bytebuf[0])
@@ -27,21 +28,32 @@ namespace pimage.Tools
 
         public IntPtr Ptr;
 
-        public int Length;
+        public uint Length;
 
-        public int Width;
+        public uint Width;
+
+        public uint Selfgc;
     }
 
     public class cimage
     {
         [DllImport("libcimage")]
-        public extern static string dllInfo();
-
-        [DllImport("libcimage")]
         public extern static int dllInt();
 
         [DllImport("libcimage")]
         public extern static int testImageBuffer(IntPtr bufs, int len);
+
+        [DllImport("libcimage")]
+        public extern static void setDebugLogFunc(DebugLogFunc func);
+
+        public delegate void DebugLogFunc(IntPtr pstr);
+
+        static void DebugLog(IntPtr pstr)
+        {
+            var log = Marshal.PtrToStringAnsi(pstr);
+            Debug.WriteLine(log);
+            //Debug.WriteLine("DebugLog");
+        }
 
         public void AddImage(byte[] buf, int width)
         {
@@ -52,6 +64,8 @@ namespace pimage.Tools
         {
             CImageBuffer[] bufs = new CImageBuffer[imgs.Count];
             bufs[0] = imgs[0];
+
+            setDebugLogFunc(DebugLog);
 
             unsafe
             {

@@ -4,7 +4,7 @@ extern "C"
 {
 	char * dllInfo()
 	{
-		return cimage::getTemplateInfo();
+		return "abc";
 	}
 
 	int dllInt()

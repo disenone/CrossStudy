@@ -1,36 +1,25 @@
 #include <iostream>
+#include <string>
 #include "cimage.h"
+#include "Helper.h"
 
-
-using namespace cimage;
 using namespace std;
+using namespace cimage;
+using namespace cimage::Tools;
 
-#define PLATFORM_ANDROID 0
-#define PLATFORM_IOS 1
 
-char * getTemplateInfo()
+int cimage::testImageBuffer(CImageBuffer<uint8_t>* pbuf, int len)
 {
-#if PLATFORM == PLATFORM_IOS
-	static char info[] = "Platform for iOS";
-#elif PLATFORM == PLATFORM_ANDROID
-	static char info[] = "Platform for Android";
-#else
-	static char info[] = "Undefined platform";
-#endif
+	Log("test log in native code.");
 
-	return info;
-}
+	cout << "test log in native code 2." << endl;
 
-int cimage::testImageBuffer(CImageBuffer* pbuf, int len)
-{
-	cout << pbuf << ", " << len << endl;
-
-	CImageBuffer& img = pbuf[0];
+	CImageBuffer<uint8_t>& img = pbuf[0];
 
 	for (int i = 0; i < img.length; i += 4)
 	{
-		img.buf[i] = 255;
+		img.pbuf[i] = 255;
 	}
 
-	return pbuf[0].buf[3];
+	return pbuf[0].pbuf[3];
 }

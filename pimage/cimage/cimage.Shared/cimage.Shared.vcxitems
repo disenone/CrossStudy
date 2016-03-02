@@ -15,10 +15,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)cimage.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)Image.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)cimage.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)Image.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Helper.h" />
   </ItemGroup>
 </Project>
