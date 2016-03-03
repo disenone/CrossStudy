@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "cimage.h"
 #include "Helper.h"
 
@@ -13,7 +14,7 @@ extern "C"
 		cimage::Tools::setDebugLogFunc(func);
 	}
 
-	void testImageBuffer(cimage::CImageBuffer<unsigned char>* pbuf, int len)
+	void testImageBuffer(cimage::CImage<uint8_t>* pbuf, int len)
 	{
 		cimage::testImageBuffer(pbuf, len);
 	}
