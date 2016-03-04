@@ -2,8 +2,9 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <png.h>
 #include "cimage.h"
-#include "png.h"
+
 
 namespace cimage{
 
@@ -18,7 +19,7 @@ struct FileOpener {
 			fclose(f);
 		}
 	}
-	FILE * const f;
+	FILE * const f = nullptr;
 };
 
 typedef bool(*CheckFunc)(bool condition, const char* fmt, ...);
@@ -79,7 +80,11 @@ bool load_png(const std::string& filename, CImage_uint8_t& img, CheckFunc check 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!check(info_ptr, "png_create_info_struct failed\n")) return false;
 
-	if (!check(!setjmp(png_jmpbuf(png_ptr)), "Error during init_io\n")) return false;
+	if (!check(!setjmp(png_jmpbuf(png_ptr)), "Error during init_io\n"))
+	{
+		png_destroy_read_struct(&png_ptr, &info_ptr,NULL);
+		return false;
+	}
 
 	png_init_io(png_ptr, f.f);
 	png_set_sig_bytes(png_ptr, 8);
@@ -164,4 +169,3 @@ private:
 
 }	// namespace Tools
 }	// namespace cimage
-
