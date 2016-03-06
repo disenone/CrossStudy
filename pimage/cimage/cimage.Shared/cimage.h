@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <iostream>
 
 namespace cimage
 {
@@ -42,9 +43,10 @@ struct CImage
 		memcpy(pbuf, img.pbuf, length * sizeof(T));
 	}
 
-	CImage(const CImage&& img)
+	CImage(CImage&& img)
 	{
 		memcpy(this, &img, sizeof(CImage));
+		img.selfgc = 0;
 	}
 
 	CImage& operator=(const CImage& img)
@@ -56,9 +58,10 @@ struct CImage
 		return *this;
 	}
 
-	CImage& operator=(const CImage&& img)
+	CImage& operator=(CImage&& img)
 	{
 		memcpy(this, &img, sizeof(CImage));
+		img.selfgc = 0;
 		return *this;
 	}
 
@@ -66,6 +69,7 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
+			std::cout << "CImage clear" << std::endl;
 			delete pbuf;
 			pbuf = nullptr;
 		}

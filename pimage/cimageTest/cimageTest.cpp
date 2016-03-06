@@ -2,10 +2,19 @@
 //
 
 #include "stdafx.h"
+#include "cimageIO.hpp"
 
+using namespace cimage;
+using namespace cimage::Tools;
 
 int main()
 {
+	CImage_uint8_t img;
+
+	img = load_image("1.png");
+
+	save_image(img, "save.png");
+
     return 0;
 }
 

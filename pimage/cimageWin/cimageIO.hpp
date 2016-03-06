@@ -7,18 +7,22 @@
 
 
 namespace cimage{
-
 namespace Tools{
 
-struct FileOpener {
-	FileOpener(const char* filename, const char* mode) : f(fopen(filename, mode)) {
-		// nothing
+class FileOpener {
+public:
+	FileOpener(const char* filename, const char* mode){
+		//fopen_s(&f, filename, mode);
 	}
 	~FileOpener() {
 		if (f != nullptr) {
 			fclose(f);
 		}
 	}
+
+	operator FILE*() {return f;}
+
+private:
 	FILE * const f = nullptr;
 };
 
@@ -60,100 +64,64 @@ inline bool CheckPrint(bool condition, const char* fmt, ...)
 
 bool load_png(const std::string& filename, CImage_uint8_t& img, CheckFunc check = CheckPrint)
 {
-	png_byte header[8];
-	png_structp png_ptr;
-	png_infop info_ptr;
+	png_image image;
 
-	/* open file and test for it being a png */
+	/* Only the image structure version number needs to be set. */
+	memset(&image, 0, sizeof image);
+	image.version = PNG_IMAGE_VERSION;
 
-	FileOpener f(filename.c_str(), "rb");
+	if (!check(png_image_begin_read_from_file(&image, filename.c_str()), "load_png: %s: %s\n", filename.c_str(), image.message)) 
+		return false;
 
-	if (!check(f.f != nullptr, "File %s could not be opened for reading\n", filename.c_str())) return false;
-	if (!check(fread(header, 1, 8, f.f) == 8, "File ended before end of header\n")) return false;
-	if (!check(!png_sig_cmp(header, 0, 8), "File %s is not recognized as a PNG file\n", filename.c_str())) return false;
+	image.format = PNG_FORMAT_RGBA;
+	
+	img = CImage_uint8_t(image.width, image.height, PNG_IMAGE_PIXEL_CHANNELS(image.format));
 
-	/* initialize stuff */
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	const unsigned long length = PNG_IMAGE_SIZE(image);
 
-	if (!check(png_ptr != NULL, "png_create_read_struct failed\n")) return false;
-
-	info_ptr = png_create_info_struct(png_ptr);
-	if (!check(info_ptr, "png_create_info_struct failed\n")) return false;
-
-	if (!check(!setjmp(png_jmpbuf(png_ptr)), "Error during init_io\n"))
+	if (!check(img.pbuf != nullptr, "load_png: %s: out of memory, %ld bytes\n", filename.c_str(), length))
 	{
-		png_destroy_read_struct(&png_ptr, &info_ptr,NULL);
+		png_image_free(&image);
 		return false;
 	}
 
-	png_init_io(png_ptr, f.f);
-	png_set_sig_bytes(png_ptr, 8);
-
-	png_read_info(png_ptr, info_ptr);
-
-	int width = png_get_image_width(png_ptr, info_ptr);
-	int height = png_get_image_height(png_ptr, info_ptr);
-	int channels = png_get_channels(png_ptr, info_ptr);
-	int bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-
-	// Expand low-bpp images to have only 1 pixel per byte (As opposed to tight packing)
-	if (bit_depth < 8) {
-		png_set_packing(png_ptr);
+	if (!check(img.length == length, "load_png: %s: length not match, %ld bytes\n", filename.c_str(), length))
+	{
+		png_image_free(&image);
+		return false;
 	}
 
-	if (channels != 1) {
-		*im = ImageType(width, height, channels);
-	}
-	else {
-		*im = ImageType(width, height);
-	}
-
-	png_set_interlace_handling(png_ptr);
-	png_read_update_info(png_ptr, info_ptr);
-
-	// read the file
-	if (!check(!setjmp(png_jmpbuf(png_ptr)), "Error during read_image\n")) return false;
-
-	Internal::PngRowPointers row_pointers(im->height(), png_get_rowbytes(png_ptr, info_ptr));
-	png_read_image(png_ptr, row_pointers.p);
-
-	if (!check((bit_depth == 8) || (bit_depth == 16), "Can only handle 8-bit or 16-bit pngs\n")) return false;
-
-	// convert the data to ImageType::ElemType
-
-	int c_stride = (im->channels() == 1) ? 0 : im->stride(2);
-	typename ImageType::ElemType *ptr = (typename ImageType::ElemType*)im->data();
-	if (bit_depth == 8) {
-		for (int y = 0; y < im->height(); y++) {
-			uint8_t *srcPtr = (uint8_t *)(row_pointers.p[y]);
-			for (int x = 0; x < im->width(); x++) {
-				for (int c = 0; c < im->channels(); c++) {
-					Internal::convert(*srcPtr++, ptr[c*c_stride]);
-				}
-				ptr++;
-			}
-		}
-	}
-	else if (bit_depth == 16) {
-		for (int y = 0; y < im->height(); y++) {
-			uint8_t *srcPtr = (uint8_t *)(row_pointers.p[y]);
-			for (int x = 0; x < im->width(); x++) {
-				for (int c = 0; c < im->channels(); c++) {
-					uint16_t hi = (*srcPtr++) << 8;
-					uint16_t lo = hi | (*srcPtr++);
-					Internal::convert(lo, ptr[c*c_stride]);
-				}
-				ptr++;
-			}
-		}
+	if (!check(png_image_finish_read(&image, NULL, img.pbuf, 0, NULL), "load_png: read %s: %s\n", filename.c_str(), image.message))
+	{
+		png_image_free(&image);
+		return false;
 	}
 
-	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+	return true;
 
-	im->set_host_dirty();
-	return cimage::CImage<uint8_t>();
 }
 
+bool save_png(const CImage_uint8_t& img, const std::string& filename, CheckFunc check = CheckPrint)
+{
+	if (!check(img.channel == 4, "save_png: %s: only support RGBA format\n", filename.c_str()))
+		return false;
+
+	png_image image;
+
+	image.version = PNG_IMAGE_VERSION;
+	image.opaque = NULL;
+	image.width = img.width;
+	image.height = img.height;
+	image.format = PNG_FORMAT_RGBA;
+	image.flags = 0;
+	image.colormap_entries = 0;
+
+	if (!check(png_image_write_to_file(&image, filename.c_str(), 0, img.pbuf, 0, NULL),
+		"save_png: save %s: %s\n", filename.c_str(), image.message))
+		return false;
+
+	return true;
+}
 
 class load_image {
 public:
@@ -166,6 +134,10 @@ public:
 private:
 	const std::string filename;
 };
+
+void save_image(const CImage_uint8_t &im, const std::string &filename) {
+	save_png(im, filename);
+}
 
 }	// namespace Tools
 }	// namespace cimage
