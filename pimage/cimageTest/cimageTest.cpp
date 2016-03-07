@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "cimageIO.hpp"
+#include "cimageIO.h"
 
 using namespace cimage;
 using namespace cimage::Tools;

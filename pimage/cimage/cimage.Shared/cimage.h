@@ -12,15 +12,17 @@ template<typename T>
 struct CImage
 {
 
-	T* pbuf;
-	uint32_t length;
-	uint32_t width;
-	uint32_t height;
-	uint32_t channel;
-	uint32_t selfgc;
+	T* pbuf = nullptr;
+	uint32_t length = 0;
+	uint32_t width = 0;
+	uint32_t height = 0;
+	uint32_t channel = 0;
+	uint32_t selfgc = 0;
 
-	CImage(int w = 0, int h = 0, int c = 0) :
-		pbuf(nullptr), width(w), height(h), channel(c), selfgc(0)
+	CImage() = default;
+
+	CImage(int w, int h, int c) :
+		width(w), height(h), channel(c)
 	{
 		length = width * height * channel;
 		if (length > 0)
@@ -45,6 +47,7 @@ struct CImage
 
 	CImage(CImage&& img)
 	{
+		clear();
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
 	}
@@ -60,6 +63,7 @@ struct CImage
 
 	CImage& operator=(CImage&& img)
 	{
+		clear();
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
 		return *this;
