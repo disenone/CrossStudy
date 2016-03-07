@@ -90,7 +90,30 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <IncludePath>$(SolutionDir)cimageWin;$(LLVMToolchainPrebuiltRoot)\lib\clang\$(LLVMVersion)\include;</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
