@@ -78,7 +78,7 @@ private:
 	const std::string filename;
 };
 
-void save_image(const CImage_uint8_t &im, const std::string &filename) {
+inline void save_image(const CImage_uint8_t &im, const std::string &filename) {
 	save_png(im, filename);
 }
 

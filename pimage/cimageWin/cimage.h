@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cimageUtil.h"
 #include <string>
 #include <vector>
 #include <tuple>
@@ -24,12 +25,7 @@ struct CImage
 	CImage(int w, int h, int c) :
 		width(w), height(h), channel(c)
 	{
-		length = width * height * channel;
-		if (length > 0)
-		{
-			pbuf = new T[length];
-			selfgc = 1;
-		}
+		create();
 	}
 
 	~CImage()
@@ -42,7 +38,7 @@ struct CImage
 		clear();
 		memcpy(this, &img, sizeof(CImage));
 		create();
-		memcpy(pbuf, img.pbuf, length * sizeof(T));
+		memcpy(pbuf, img.pbuf, byteLength());
 	}
 
 	CImage(CImage&& img)
@@ -57,7 +53,7 @@ struct CImage
 		clear();
 		memcpy(this, &img, sizeof(CImage));
 		create();
-		memcpy(pbuf, img.pbuf, length * sizeof(T));
+		memcpy(pbuf, img.pbuf, byteLength());
 		return *this;
 	}
 
@@ -73,7 +69,7 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
-			std::cout << "CImage clear" << std::endl;
+			std::cout << "CImage gc" << std::endl;
 			delete pbuf;
 			pbuf = nullptr;
 		}
@@ -88,6 +84,7 @@ struct CImage
 		{
 			pbuf = new T[length];
 			selfgc = 1;
+			memset(pbuf, 0, byteLength());
 		}
 	}
 
@@ -114,6 +111,11 @@ struct CImage
 	{
 		return pbuf + length;
 	}
+
+	inline int byteLength() const
+	{
+		return length * sizeof(T);
+	}
 };
 
 typedef CImage<uint8_t> CImage_uint8_t;
@@ -124,20 +126,20 @@ class ImageMatchMerge
 {
 public:
 
-	ImageMatchMerge(CImage<uint8_t>* pbuf, int len);
+	EXPORT ImageMatchMerge(CImage_uint8_t** pbuf, int len);
 
-	bool run();
+	EXPORT bool run();
 
-	CImage<uint8_t> result;
+	CImage_uint8_t result;
 
 private:
 
-	CImage<uint32_t> sumImageRow(const CImage<uint8_t>& input);
+	CImage_uint32_t sumImageRow(const CImage_uint8_t& input);
 
-	CImage<uint32_t> sumImageRowBlock(const CImage<uint8_t>& input, int block_width);
+	CImage_uint32_t sumImageRowBlock(const CImage_uint8_t& input, int block_width);
 
-	std::tuple<int, int> findHeadAndTail(const CImage<uint32_t>& sum1,
-		const CImage<uint32_t>& sum2);
+	std::tuple<int, int> findHeadAndTail(const CImage_uint32_t& sum1,
+		const CImage_uint32_t& sum2);
 
 	template<typename T>
 	CImage<T> cutHeadAndTail(const CImage<T>& input, int headLen, int tailLen);
@@ -145,10 +147,10 @@ private:
 	template<typename T>
 	int avgMatchImages(const CImage<T>& top, const CImage<T>& down);
 
-	std::vector<CImage<uint8_t>*> pimgs;
+	std::vector<CImage_uint8_t*> pimgs;
 
 };
 
-int testImageBuffer(CImage<uint8_t>* pbuf, int len);
+int testImageBuffer(CImage_uint8_t* pbuf, int len);
 
 }

@@ -11,13 +11,13 @@ using namespace cimage;
 using namespace cimage::Tools;
 
 
-int cimage::testImageBuffer(CImage<uint8_t>* pbuf, int len)
+int cimage::testImageBuffer(CImage_uint8_t* pbuf, int len)
 {
 	Log("test log in native code.");
 
 	cout << "test log in native code 2." << endl;
 
-	CImage<uint8_t>& img = pbuf[0];
+	CImage_uint8_t& img = pbuf[0];
 
 	for (size_t i = 0; i < img.length; i += 4)
 	{
@@ -27,17 +27,17 @@ int cimage::testImageBuffer(CImage<uint8_t>* pbuf, int len)
 	return pbuf[0].pbuf[3];
 }
 
-ImageMatchMerge::ImageMatchMerge(CImage<uint8_t>* pbuf, int len)
+ImageMatchMerge::ImageMatchMerge(CImage_uint8_t** pbuf, int len)
 {
 	pimgs.resize(len);
 
-	memcpy(pimgs.data(), pbuf, len * sizeof(CImage<uint8_t>));
+	memcpy(pimgs.data(), pbuf, len * sizeof(CImage_uint8_t*));
 
 }
 
-CImage<uint32_t> ImageMatchMerge::sumImageRow(const CImage<uint8_t>& input)
+CImage_uint32_t ImageMatchMerge::sumImageRow(const CImage_uint8_t& input)
 {
-	CImage<uint32_t> ret(1, input.height, input.channel);
+	CImage_uint32_t ret(1, input.height, input.channel);
 
 	uint32_t* pret = ret.pbuf;
 	uint8_t* pin = input.pbuf;
@@ -58,46 +58,39 @@ CImage<uint32_t> ImageMatchMerge::sumImageRow(const CImage<uint8_t>& input)
 	return ret;
 }
 
-CImage<uint32_t> ImageMatchMerge::sumImageRowBlock(const CImage<uint8_t>& input, int block_width)
+CImage_uint32_t ImageMatchMerge::sumImageRowBlock(const CImage_uint8_t& input, int block_width)
 {
 	size_t block = input.width / block_width;
 	if (input.width > block * block_width)
 		++block;
 
-	CImage<uint32_t> output(block, input.height, input.channel);
+	const uint32_t channel = input.channel;
+
+	CImage_uint32_t output(block, input.height, channel);
 	uint32_t* pret = output.pbuf;
 	uint8_t* pin = input.pbuf;
 
-	for (size_t j = 0; j < input.height; j++)
+	for (size_t j = 0; j < input.height; ++j)
 	{
-		for (size_t b = 0; b < block - 1; ++b)
+		for (size_t b = 0; b < block ; ++b)
 		{
-			for (size_t i = b*block_width; i < block_width*(b + 1); ++i)
+			for (size_t i = b * block_width; i < min(input.width, block_width * (b + 1)); ++i)
 			{
-				for (size_t k = 0; k < input.channel; k++)
+				for (size_t k = 0; k < channel; ++k)
 				{
-					pret[k] += *pin;
-					++pin;
+					pret[k] += pin[k];
 				}
+				pin += channel;
 			}
-			pret += output.channel;
+			pret += channel;
 		}
-		for (size_t i = (block - 1) * block_width; i < input.width; ++i)
-		{
-			for (size_t k = 0; k < input.channel; k++)
-			{
-				pret[k] += *pin;
-				++pin;
-			}
-		}
-		pret += output.channel;
 	}
 
 	return output;
 }
 
-std::tuple<int, int> ImageMatchMerge::findHeadAndTail(const CImage<uint32_t>& sum1,
-	const CImage<uint32_t>& sum2)
+std::tuple<int, int> ImageMatchMerge::findHeadAndTail(const CImage_uint32_t& sum1,
+	const CImage_uint32_t& sum2)
 {
 	int height = min(sum1.height, sum2.height);
 	int width = min(sum1.width, sum2.width);
@@ -124,8 +117,8 @@ std::tuple<int, int> ImageMatchMerge::findHeadAndTail(const CImage<uint32_t>& su
 		psum2 += sum2.stride();
 	}
 
-	psum1 = sum1.end();
-	psum2 = sum2.end();
+	psum1 = sum1.end() - sum1.stride();
+	psum2 = sum2.end() - sum2.stride();
 
 	for (; tail >= 0; --tail)
 	{
@@ -177,8 +170,8 @@ inline float calcAvgMatch(const CImage<T>& top, const CImage<T>& down, int offse
 			{
 				++match;
 			}
-			ptop += cmp_size;
-			pdown += cmp_size;
+			ptop += top.channel;
+			pdown += top.channel;
 		}
 
 	}
@@ -227,7 +220,7 @@ bool ImageMatchMerge::run()
 		}
 	}
 
-	vector<CImage<uint32_t> > sums(num);
+	vector<CImage_uint32_t > sums(num);
 
 	// sum image block 
 	for (int i = 0; i < num; ++i)
@@ -258,16 +251,12 @@ bool ImageMatchMerge::run()
 	begin = clock();
 
 	// cut head and tail
-	vector<CImage<uint8_t> > cuts(num);
-	vector<CImage<uint32_t> > cut_sums(num);
+	vector<CImage_uint8_t> cuts(num);
+	vector<CImage_uint32_t> cut_sums(num);
 	for (int i = 0; i < num; ++i)
 	{
 		cuts[i] = cutHeadAndTail(*pimgs[i], head, tail);
-		//cut_sums[i] = cutHeadAndTail(sums[i], head, tail);
 		cut_sums[i] = sumImageRowBlock(cuts[i], 20);
-
-		//sprintf_s(filename, "out%d.png", i);
-		//save_image(cuts[i], filename);
 	}
 
 	end = clock();
@@ -295,7 +284,7 @@ bool ImageMatchMerge::run()
 	const int res_width = width;
 	const int res_height = height * 3 - (head + tail) * 2 - matchall;
 	const int res_channel = channel;
-	result = CImage<uint8_t>(res_width, res_height, res_channel);
+	result = CImage_uint8_t(res_width, res_height, res_channel);
 
 	uint8_t* pcur = result.pbuf;
 
@@ -306,8 +295,9 @@ bool ImageMatchMerge::run()
 	//image
 	for (int i = 0; i < num; ++i)
 	{
-		memcpy(pcur, cuts[i].pbuf, cuts[i].length);
-		pcur += cuts[i].length;
+		size_t length = (cuts[i].height - match[i]) * cuts[i].stride();
+		memcpy(pcur, cuts[i].pbuf, length);
+		pcur += length;
 	}
 
 	//tail
