@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cimageWin\cimage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cimageWin\cimageUtil.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cimageWin\Helper.h" />
   </ItemGroup>
 </Project>

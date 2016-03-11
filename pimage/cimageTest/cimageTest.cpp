@@ -20,9 +20,9 @@ void runMerge()
 	}
 
 	vector<CImage_uint8_t*> pimgs;
-	for (size_t i = 0; i < imgs.size(); ++i)
+	for (CImage_uint8_t& img: imgs)
 	{
-		pimgs.push_back(&imgs[i]);
+		pimgs.push_back(&img);
 	}
 
 	ImageMatchMerge imm(pimgs.data(), pimgs.size());

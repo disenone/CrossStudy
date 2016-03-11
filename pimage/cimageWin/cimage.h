@@ -147,7 +147,7 @@ private:
 	template<typename T>
 	int avgMatchImages(const CImage<T>& top, const CImage<T>& down);
 
-	std::vector<CImage_uint8_t*> pimgs;
+	std::vector<CImage_uint8_t*> m_pimgs;
 
 };
 

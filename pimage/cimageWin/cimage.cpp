@@ -29,9 +29,9 @@ int cimage::testImageBuffer(CImage_uint8_t* pbuf, int len)
 
 ImageMatchMerge::ImageMatchMerge(CImage_uint8_t** pbuf, int len)
 {
-	pimgs.resize(len);
+	m_pimgs.resize(len);
 
-	memcpy(pimgs.data(), pbuf, len * sizeof(CImage_uint8_t*));
+	memcpy(m_pimgs.data(), pbuf, len * sizeof(CImage_uint8_t*));
 
 }
 
@@ -74,7 +74,7 @@ CImage_uint32_t ImageMatchMerge::sumImageRowBlock(const CImage_uint8_t& input, i
 	{
 		for (size_t b = 0; b < block ; ++b)
 		{
-			for (size_t i = b * block_width; i < min(input.width, block_width * (b + 1)); ++i)
+			for (size_t i = b * block_width; i < std::min(input.width, (uint32_t)(block_width * (b + 1))); ++i)
 			{
 				for (size_t k = 0; k < channel; ++k)
 				{
@@ -92,8 +92,8 @@ CImage_uint32_t ImageMatchMerge::sumImageRowBlock(const CImage_uint8_t& input, i
 std::tuple<int, int> ImageMatchMerge::findHeadAndTail(const CImage_uint32_t& sum1,
 	const CImage_uint32_t& sum2)
 {
-	int height = min(sum1.height, sum2.height);
-	int width = min(sum1.width, sum2.width);
+	int height = std::min(sum1.height, sum2.height);
+	int width = std::min(sum1.width, sum2.width);
 
 	if (sum1.channel != sum2.channel || 
 		height == 0 || width == 0)
@@ -152,10 +152,10 @@ CImage<T> ImageMatchMerge::cutHeadAndTail(const CImage<T>& input, int headLen, i
 }
 
 template<typename T>
-inline float calcAvgMatch(const CImage<T>& top, const CImage<T>& down, int offset)
+inline float calcAvgMatch(const CImage<T>& top, const CImage<T>& down, uint32_t offset)
 {
-	const int height = min(top.height - offset, down.height);
-	const int width = min(top.width, down.width);
+	const int height = std::min(top.height - offset, down.height);
+	const int width = std::min(top.width, down.width);
 	int match = 0;
 	const T* ptop = top.pbuf + top.stride() * offset;
 	const T* pdown = down.pbuf;
@@ -182,7 +182,7 @@ inline float calcAvgMatch(const CImage<T>& top, const CImage<T>& down, int offse
 template<typename T>
 int ImageMatchMerge::avgMatchImages(const CImage<T>& top, const CImage<T>& down)
 {
-	const int height = min(top.height, down.height);
+	const int height = std::min(top.height, down.height);
 
 	int res = 0;
 	float maxm = 0;
@@ -204,16 +204,16 @@ bool ImageMatchMerge::run()
 	clock_t begin = clock(), end = 0;
 	float elapsed_time = 0;
 
-	const int num = pimgs.size();
+	const int num = m_pimgs.size();
 
 	if (num <= 0)
 		return false;
 
-	const int width = pimgs[0]->width, height = pimgs[0]->height, channel = pimgs[0]->channel;
+	const int width = m_pimgs[0]->width, height = m_pimgs[0]->height, channel = m_pimgs[0]->channel;
 
 	for (int i = 1; i < num; ++i)
 	{
-		if (pimgs[1]->width != width || pimgs[i]->channel != channel)
+		if (m_pimgs[1]->width != width || m_pimgs[i]->channel != channel)
 		{
 			cout << "width or channel of images are different !!" << endl;
 			return false;
@@ -224,7 +224,7 @@ bool ImageMatchMerge::run()
 
 	// sum image block 
 	for (int i = 0; i < num; ++i)
-		sums[i] = sumImageRow(*pimgs[i]);
+		sums[i] = sumImageRow(*m_pimgs[i]);
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
@@ -255,7 +255,7 @@ bool ImageMatchMerge::run()
 	vector<CImage_uint32_t> cut_sums(num);
 	for (int i = 0; i < num; ++i)
 	{
-		cuts[i] = cutHeadAndTail(*pimgs[i], head, tail);
+		cuts[i] = cutHeadAndTail(*m_pimgs[i], head, tail);
 		cut_sums[i] = sumImageRowBlock(cuts[i], 20);
 	}
 
@@ -289,7 +289,7 @@ bool ImageMatchMerge::run()
 	uint8_t* pcur = result.pbuf;
 
 	//header
-	memcpy(pcur, pimgs[0]->pbuf, width * channel * head);
+	memcpy(pcur, m_pimgs[0]->pbuf, width * channel * head);
 	pcur += width * channel * head;
 
 	//image
@@ -301,7 +301,7 @@ bool ImageMatchMerge::run()
 	}
 
 	//tail
-	memcpy(pcur, &pimgs[0]->operator()(0, height - tail - 1), tail * pimgs[0]->stride());
+	memcpy(pcur, &m_pimgs[0]->operator()(0, height - tail - 1), tail * m_pimgs[0]->stride());
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
