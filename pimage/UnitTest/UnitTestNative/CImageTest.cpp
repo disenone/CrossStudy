@@ -14,22 +14,22 @@ namespace UnitTestNative
 	{
 	public:
 		
-		TEST_METHOD(ImageBufferGC)
+		TEST_METHOD(ImageGC)
 		{
-			LeakDetectorCreater lc(Logger::WriteMessage);
-			//leakd.setMessageLogger(Logger::WriteMessage);
+			LeakDetect lc(Logger::WriteMessage, Logger::WriteMessage);
+			Assert::IsTrue(lc.isInitOk(), L"Leak Detector init failed.");
 			{
+				{
+					auto img = CImage_uint8_t(1, 1, 1);
+
+					img = CImage_uint8_t(2, 2, 2);
+				}
+
 				auto img = CImage_uint8_t(1, 1, 1);
 
 				img = CImage_uint8_t(2, 2, 2);
-				Logger::WriteMessage("GC Test");
 			}
-
-			auto img = CImage_uint8_t(1, 1, 1);
-			
-			img = CImage_uint8_t(2, 2, 2);
-			Logger::WriteMessage("GC Test");
-			
+			Assert::IsTrue(lc.check(), L"Memory Leak Detected.");
 		}
 
 		TEST_METHOD(ImageIO)

@@ -11,7 +11,7 @@ bool cimage::Tools::load_png(const std::string& filename, CImage_uint8_t& img, C
 	memset(&image, 0, sizeof image);
 	image.version = PNG_IMAGE_VERSION;
 
-	if (!check(png_image_begin_read_from_file(&image, filename.c_str()), "load_png: %s: %s\n", filename.c_str(), image.message))
+	if (!check(png_image_begin_read_from_file(&image, filename.c_str()) != 0, "load_png: %s: %s\n", filename.c_str(), image.message))
 		return false;
 
 	image.format = PNG_FORMAT_RGBA;
@@ -32,7 +32,7 @@ bool cimage::Tools::load_png(const std::string& filename, CImage_uint8_t& img, C
 		return false;
 	}
 
-	if (!check(png_image_finish_read(&image, NULL, img.pbuf, 0, NULL), "load_png: read %s: %s\n", filename.c_str(), image.message))
+	if (!check(png_image_finish_read(&image, NULL, img.pbuf, 0, NULL) != 0, "load_png: read %s: %s\n", filename.c_str(), image.message))
 	{
 		png_image_free(&image);
 		return false;
@@ -57,7 +57,7 @@ bool cimage::Tools::save_png(const CImage_uint8_t& img, const std::string& filen
 	image.flags = 0;
 	image.colormap_entries = 0;
 
-	if (!check(png_image_write_to_file(&image, filename.c_str(), 0, img.pbuf, 0, NULL),
+	if (!check(png_image_write_to_file(&image, filename.c_str(), 0, img.pbuf, 0, NULL) != 0,
 		"save_png: save %s: %s\n", filename.c_str(), image.message))
 		return false;
 

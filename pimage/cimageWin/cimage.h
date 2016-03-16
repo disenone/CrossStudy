@@ -69,7 +69,6 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
-			std::cout << "CImage gc" << std::endl;
 			delete pbuf;
 			pbuf = nullptr;
 		}

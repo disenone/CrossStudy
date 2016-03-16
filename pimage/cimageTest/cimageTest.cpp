@@ -2,8 +2,10 @@
 //
 
 #include "stdafx.h"
+#include <vld.h>
 #include "cimageIO.h"
 #include <vector>
+
 
 using namespace cimage;
 using namespace cimage::Tools;
@@ -41,10 +43,25 @@ void runIO()
 	save_image(img, "save.png");
 }
 
+void runGC()
+{
+	{
+		auto img = CImage_uint8_t(1, 1, 1);
+
+		img = CImage_uint8_t(2, 2, 2);
+	}
+
+	auto img = CImage_uint8_t(1, 1, 1);
+
+	img = CImage_uint8_t(2, 2, 2);
+}
+
 int main()
 {
 
-	runMerge();
+	//runMerge();
+
+	runGC();
 
     return 0;
 }
