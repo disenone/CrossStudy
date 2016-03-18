@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
-#include <iostream>
+//#include <iostream>
 
 namespace cimage
 {
@@ -50,6 +50,8 @@ struct CImage
 
 	CImage& operator=(const CImage& img)
 	{
+		if (this == &img)
+			return *this;
 		clear();
 		memcpy(this, &img, sizeof(CImage));
 		create();
@@ -63,6 +65,14 @@ struct CImage
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
 		return *this;
+	}
+
+	CImage makeTempCopy() const
+	{
+		CImage img;
+		memcpy(&img, this, sizeof(CImage));
+		img.selfgc = 0;
+		return img;
 	}
 
 	void clear()
@@ -124,10 +134,13 @@ typedef CImage<uint32_t> CImage_uint32_t;
 class ImageMatchMerge
 {
 public:
+	EXPORT ImageMatchMerge(CImage_uint8_t* pbuf = nullptr, int len = 0);
 
-	EXPORT ImageMatchMerge(CImage_uint8_t** pbuf, int len);
+	EXPORT void setInput(CImage_uint8_t* pbuf, int len);
 
 	EXPORT bool run();
+
+	EXPORT void clear();
 
 	CImage_uint8_t result;
 
@@ -146,10 +159,11 @@ private:
 	template<typename T>
 	int avgMatchImages(const CImage<T>& top, const CImage<T>& down);
 
-	std::vector<CImage_uint8_t*> m_pimgs;
+	std::vector<CImage_uint8_t> m_pimgs;
 
 };
 
-int testImageBuffer(CImage_uint8_t* pbuf, int len);
+EXPORT int runImageMerge(CImage_uint8_t* pbuf, int len, CImage_uint8_t* pout);
+EXPORT int clearImageMerge();
 
 }

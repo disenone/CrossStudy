@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include <vld.h>
+//#include <vld.h>
 #include "cimageIO.h"
 #include <vector>
 
@@ -21,13 +21,7 @@ void runMerge()
 		imgs.push_back(load_image(filename));
 	}
 
-	vector<CImage_uint8_t*> pimgs;
-	for (CImage_uint8_t& img: imgs)
-	{
-		pimgs.push_back(&img);
-	}
-
-	ImageMatchMerge imm(pimgs.data(), pimgs.size());
+	ImageMatchMerge imm(imgs.data(), imgs.size());
 
 	imm.run();
 
@@ -39,6 +33,7 @@ void runIO()
 	CImage_uint8_t img;
 
 	img = load_image("1.png");
+	img = img;
 
 	save_image(img, "save.png");
 }
@@ -59,10 +54,11 @@ void runGC()
 int main()
 {
 
-	//runMerge();
+	runMerge();
 
-	runGC();
+	//runGC();
 
+	//runIO();
     return 0;
 }
 

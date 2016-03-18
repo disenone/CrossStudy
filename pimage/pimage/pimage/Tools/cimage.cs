@@ -9,13 +9,23 @@ using System.Diagnostics;
 
 namespace pimage.Tools
 {
+    public struct CImageByte
+    {
+
+        public byte[] Bytes;
+        public uint Width;
+        public uint Channel;
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct CImageBuffer
     {
-        public CImageBuffer(byte[] bytebuf, int width)
+        public CImageBuffer(byte[] bytebuf, uint width, uint channel)
         {
             Length = (uint)bytebuf.Length;
-            Width = (uint)width;
+            Width = width;
+            Channel = channel;
+            Height = Length / Width / Channel;
             Selfgc = 0;
             unsafe
             {
@@ -26,14 +36,41 @@ namespace pimage.Tools
             }
         }
 
+        public uint ByteSize
+        {
+            get
+            {
+                return Channel * Length * Width;
+            }
+        }
+
         public IntPtr Ptr;
 
         public uint Length;
 
         public uint Width;
 
+        public uint Height;
+
+        public uint Channel;
+
         public uint Selfgc;
     }
+
+    public class CImageConverter
+    {
+        static public CImageBuffer CImageByteToBuffer(CImageByte img)
+        {
+            return new CImageBuffer(img.Bytes, img.Width);
+        }
+
+        static public CImageByte CImageBufferToByte(CImageBuffer img)
+        {
+            byte[] bytes = new byte[]
+        }
+    }
+
+
 
     public class cimage
     {
@@ -41,10 +78,10 @@ namespace pimage.Tools
         public extern static int dllInt();
 
         [DllImport("libcimage")]
-        public extern static int testImageBuffer(IntPtr bufs, int len);
+        public extern static void setDebugLogFunc(DebugLogFunc func);
 
         [DllImport("libcimage")]
-        public extern static void setDebugLogFunc(DebugLogFunc func);
+        public extern static int runImageMerge(IntPtr bufs, int len, out CImageBuffer ret);
 
         public delegate void DebugLogFunc(IntPtr pstr);
 
@@ -60,7 +97,7 @@ namespace pimage.Tools
             imgs.Add(new CImageBuffer(buf, width));
         }
 
-        public void testImageBuffer()
+        public CImageBuffer testImageBuffer()
         {
             CImageBuffer[] bufs = new CImageBuffer[imgs.Count];
             bufs[0] = imgs[0];
@@ -71,13 +108,20 @@ namespace pimage.Tools
             {
                 fixed (CImageBuffer* p = &bufs[0])
                 {
-                    var ret = testImageBuffer((IntPtr)p, imgs.Count);
+                    int state = runImageMerge((IntPtr)p, imgs.Count, out ret);
                     Debug.WriteLine("ret: " + ret.ToString());
                 }
             }
-
+            return ret;
         }
 
         List<CImageBuffer> imgs =  new List<CImageBuffer>();
+        public CImageBuffer Ret
+        { get
+            {
+                return ret;
+            }
+        }
+        CImageBuffer ret;
     }
 }

@@ -10,29 +10,45 @@ using namespace std;
 using namespace cimage;
 using namespace cimage::Tools;
 
+static ImageMatchMerge imm;
 
-int cimage::testImageBuffer(CImage_uint8_t* pbuf, int len)
+int cimage::runImageMerge(CImage_uint8_t* pimgs, int len, CImage_uint8_t* pout)
 {
-	Log("test log in native code.");
+	printLog("test log in native code.");
 
-	cout << "test log in native code 2." << endl;
+	ImageMatchMerge imm(pimgs, len);
 
-	CImage_uint8_t& img = pbuf[0];
+	imm.run();
 
-	for (size_t i = 0; i < img.length; i += 4)
-	{
-		img.pbuf[i] = 255;
-	}
+	*pout = imm.result.makeTempCopy();
 
-	return pbuf[0].pbuf[3];
+	return 1;
 }
 
-ImageMatchMerge::ImageMatchMerge(CImage_uint8_t** pbuf, int len)
+int cimage::clearImageMerge()
 {
-	m_pimgs.resize(len);
+	imm.clear();
+	return 1;
+}
 
-	memcpy(m_pimgs.data(), pbuf, len * sizeof(CImage_uint8_t*));
+ImageMatchMerge::ImageMatchMerge(CImage_uint8_t* pbuf, int len)
+{
+	setInput(pbuf, len);
+}
 
+void ImageMatchMerge::setInput(CImage_uint8_t* pbuf, int len)
+{
+	m_pimgs.clear();
+	for (int i = 0; i < len; ++i)
+	{
+		m_pimgs.emplace_back(pbuf[i].makeTempCopy());
+	}
+}
+
+void ImageMatchMerge::clear()
+{
+	m_pimgs.clear();
+	result = CImage_uint8_t();
 }
 
 CImage_uint32_t ImageMatchMerge::sumImageRow(const CImage_uint8_t& input)
@@ -209,11 +225,11 @@ bool ImageMatchMerge::run()
 	if (num <= 0)
 		return false;
 
-	const int width = m_pimgs[0]->width, height = m_pimgs[0]->height, channel = m_pimgs[0]->channel;
+	const int width = m_pimgs[0].width, height = m_pimgs[0].height, channel = m_pimgs[0].channel;
 
 	for (int i = 1; i < num; ++i)
 	{
-		if (m_pimgs[1]->width != width || m_pimgs[i]->channel != channel)
+		if (m_pimgs[1].width != width || m_pimgs[i].channel != channel)
 		{
 			cout << "width or channel of images are different !!" << endl;
 			return false;
@@ -224,11 +240,11 @@ bool ImageMatchMerge::run()
 
 	// sum image block 
 	for (int i = 0; i < num; ++i)
-		sums[i] = sumImageRow(*m_pimgs[i]);
+		sums[i] = sumImageRow(m_pimgs[i]);
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
-	printf("sum image block time = %f\n", elapsed_time);
+	printLog("sum image block time = %f\n", elapsed_time);
 	begin = clock();
 
 
@@ -241,13 +257,13 @@ bool ImageMatchMerge::run()
 		tail = max(tail, get<1>(ht));
 	}
 
-	printf("head = %d, tail = %d\n", head, tail);
+	printLog("head = %d, tail = %d\n", head, tail);
 
 	assert(tail + head < height);
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
-	printf("findHeadAndTail time = %f\n", elapsed_time);
+	printLog("findHeadAndTail time = %f\n", elapsed_time);
 	begin = clock();
 
 	// cut head and tail
@@ -255,13 +271,13 @@ bool ImageMatchMerge::run()
 	vector<CImage_uint32_t> cut_sums(num);
 	for (int i = 0; i < num; ++i)
 	{
-		cuts[i] = cutHeadAndTail(*m_pimgs[i], head, tail);
+		cuts[i] = cutHeadAndTail(m_pimgs[i], head, tail);
 		cut_sums[i] = sumImageRowBlock(cuts[i], 20);
 	}
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
-	printf("cutHeadAndTail time = %f\n", elapsed_time);
+	printLog("cutHeadAndTail time = %f\n", elapsed_time);
 	begin = clock();
 
 	// find match bwtween cuts
@@ -277,7 +293,7 @@ bool ImageMatchMerge::run()
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
-	printf("avgMatchImages time = %f\n", elapsed_time);
+	printLog("avgMatchImages time = %f\n", elapsed_time);
 	begin = clock();
 
 	// joint all the cut images
@@ -289,7 +305,7 @@ bool ImageMatchMerge::run()
 	uint8_t* pcur = result.pbuf;
 
 	//header
-	memcpy(pcur, m_pimgs[0]->pbuf, width * channel * head);
+	memcpy(pcur, m_pimgs[0].pbuf, width * channel * head);
 	pcur += width * channel * head;
 
 	//image
@@ -301,11 +317,11 @@ bool ImageMatchMerge::run()
 	}
 
 	//tail
-	memcpy(pcur, &m_pimgs[0]->operator()(0, height - tail - 1), tail * m_pimgs[0]->stride());
+	memcpy(pcur, &m_pimgs[0](0, height - tail - 1), tail * m_pimgs[0].stride());
 
 	end = clock();
 	elapsed_time = float(end - begin) / CLOCKS_PER_SEC;
-	printf("joint time = %f\n", elapsed_time);
+	printLog("joint time = %f\n", elapsed_time);
 	begin = clock();
 
 	return true;

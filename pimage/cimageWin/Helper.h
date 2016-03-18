@@ -11,9 +11,9 @@ namespace Tools
 
 	void setDebugLogFunc(DebugLogFunc);
 
-	void Log(const char* log);
+	void printLog(const char* fmt, ...);
 
-	void Log(const std::string& log);
+	void printLog(const std::string& log);
 
 }
 }

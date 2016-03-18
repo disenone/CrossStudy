@@ -1,4 +1,8 @@
 #include "Helper.h"
+#include <cstdarg>
+#include <iostream>
+
+using namespace std;
 
 namespace cimage {
 namespace Tools {
@@ -10,17 +14,26 @@ void setDebugLogFunc(DebugLogFunc func)
 	DebugLogF = func;
 }
 
-void Log(const char* log)
+void printLog(const char* fmt, ...)
 {
-	if (!DebugLogF)
-		return;
+	char buffer[1024];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	va_end(args);
 
-	DebugLogF(log);
+	if (!DebugLogF)
+	{
+		cout << buffer << endl;
+		return;
+	}
+
+	DebugLogF(buffer);
 }
 
-void Log(const std::string& log)
+void printLog(const std::string& log)
 {
-	Log(log.data());
+	printLog(log.data());
 }
 
 } // namespace Tools

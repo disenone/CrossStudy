@@ -24,10 +24,14 @@ namespace pimage.Pages
                     await this.Navigation.PushAsync(page);
                 });
 
-            byte[] bimgs = DependencyService.Get<ImageIO>().LoadImageFromEmbeddedResource("1.png");
-
             var cimg = new cimage();
-            cimg.AddImage(bimgs, 1242);
+
+            foreach(int i in new int[] {1, 2, 3} )
+            {
+                byte[] bimgs = DependencyService.Get<ImageIO>().LoadImageFromEmbeddedResource(
+                    i.ToString() + ".png");
+                cimg.AddImage(bimgs, 1242);
+            }
 
             cimg.testImageBuffer();
 
