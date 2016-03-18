@@ -30,35 +30,35 @@ namespace pimage.Pages
             {
                 byte[] bimgs = DependencyService.Get<ImageIO>().LoadImageFromEmbeddedResource(
                     i.ToString() + ".png");
-                cimg.AddImage(bimgs, 1242);
+                //cimg.AddImage(bimgs, 1242);
             }
 
             cimg.testImageBuffer();
+// 
+//             bimgs = DependencyService.Get<ImageIO>().ToPng(bimgs, 1242);
+// 
+//             var stream = new MemoryStream(bimgs);
+//             stream.Position = 0;
+//             Debug.WriteLine("stream info: " + stream.Length.ToString());
 
-            bimgs = DependencyService.Get<ImageIO>().ToPng(bimgs, 1242);
+//             Image image = new Image
+//             {
+//                 Source = ImageSource.FromStream(() => stream),
+//                 VerticalOptions = LayoutOptions.CenterAndExpand
+//             };
+// 
+//             Debug.WriteLine("Image info: " + image.Width.ToString() + " " + image.Height.ToString());
+//             Debug.WriteLine("byte info: (" + bimgs[0].ToString() + ", " + 
+//                 bimgs[1].ToString() + ", " + bimgs[2].ToString() + ", " + bimgs[2].ToString() + ")");
 
-            var stream = new MemoryStream(bimgs);
-            stream.Position = 0;
-            Debug.WriteLine("stream info: " + stream.Length.ToString());
-
-            Image image = new Image
-            {
-                Source = ImageSource.FromStream(() => stream),
-                VerticalOptions = LayoutOptions.CenterAndExpand
-            };
-
-            Debug.WriteLine("Image info: " + image.Width.ToString() + " " + image.Height.ToString());
-            Debug.WriteLine("byte info: (" + bimgs[0].ToString() + ", " + 
-                bimgs[1].ToString() + ", " + bimgs[2].ToString() + ", " + bimgs[2].ToString() + ")");
-
-            this.Title = "Image Show";
-            this.Content = new StackLayout
-            {
-                Children =
-                {
-                    image
-                }
-            };
+//             this.Title = "Image Show";
+//             this.Content = new StackLayout
+//             {
+//                 Children =
+//                 {
+//                     image
+//                 }
+//             };
             
         }
 

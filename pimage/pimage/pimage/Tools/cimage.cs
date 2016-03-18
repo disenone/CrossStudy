@@ -11,6 +11,12 @@ namespace pimage.Tools
 {
     public struct CImageByte
     {
+        public CImageByte(byte[] bytebuf, uint width, uint channel)
+        {
+            Bytes = bytebuf;
+            Width = width;
+            Channel = channel;
+        }
 
         public byte[] Bytes;
         public uint Width;
@@ -61,12 +67,14 @@ namespace pimage.Tools
     {
         static public CImageBuffer CImageByteToBuffer(CImageByte img)
         {
-            return new CImageBuffer(img.Bytes, img.Width);
+            return new CImageBuffer(img.Bytes, img.Width, img.Channel);
         }
 
         static public CImageByte CImageBufferToByte(CImageBuffer img)
         {
-            byte[] bytes = new byte[]
+            byte[] bytes = new byte[img.Length];
+            Marshal.Copy(img.Ptr, bytes, 0, (int)img.Length);
+            return new CImageByte(bytes, img.Width, img.Channel);
         }
     }
 
@@ -92,9 +100,9 @@ namespace pimage.Tools
             //Debug.WriteLine("DebugLog");
         }
 
-        public void AddImage(byte[] buf, int width)
+        public void AddImage(CImageByte img)
         {
-            imgs.Add(new CImageBuffer(buf, width));
+            imgs.Add(CImageConverter.CImageByteToBuffer(img));
         }
 
         public CImageBuffer testImageBuffer()
