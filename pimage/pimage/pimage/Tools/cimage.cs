@@ -21,6 +21,17 @@ namespace pimage.Tools
         public byte[] Bytes;
         public uint Width;
         public uint Channel;
+
+        public uint Height
+        {
+            get
+            {
+                uint stride = Width * Channel;
+                if (stride == 0)
+                    return 0;
+                return (uint)Bytes.Length / stride;
+            }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
