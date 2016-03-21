@@ -21,6 +21,26 @@ namespace pimage.Tools
         public byte[] Bytes;
         public uint Width;
         public uint Channel;
+        public uint Height
+        {
+            get
+            {
+                if(Width == 0 || Channel == 0 || Length == 0)
+                {
+                    return 0;
+                }
+                return Length / (Width * Channel);
+            }
+        }
+        public uint Length
+        {
+            get { return (uint)Bytes.Length; }
+        }
+        public uint Stride
+        {
+            get { return Width * Channel; }
+        }
+
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -39,14 +59,6 @@ namespace pimage.Tools
                 {
                     Ptr = (IntPtr)p;
                 }
-            }
-        }
-
-        public uint ByteSize
-        {
-            get
-            {
-                return Channel * Length * Width;
             }
         }
 
@@ -79,7 +91,6 @@ namespace pimage.Tools
     }
 
 
-
     public class cimage
     {
         [DllImport("libcimage")]
@@ -102,15 +113,20 @@ namespace pimage.Tools
 
         public void AddImage(CImageByte img)
         {
-            imgs.Add(CImageConverter.CImageByteToBuffer(img));
+            imgs.Add(img);
+
         }
 
         public CImageBuffer testImageBuffer()
         {
             CImageBuffer[] bufs = new CImageBuffer[imgs.Count];
-            bufs[0] = imgs[0];
+            for (int i= 0; i < imgs.Count; ++i)
+            {
+                bufs[i] = CImageConverter.CImageByteToBuffer(imgs[i]);
+            }
 
-            setDebugLogFunc(DebugLog);
+            Debug.WriteLine(Marshal.SizeOf(bufs[0]).ToString());
+            //setDebugLogFunc(DebugLog);
 
             unsafe
             {
@@ -123,7 +139,7 @@ namespace pimage.Tools
             return ret;
         }
 
-        List<CImageBuffer> imgs =  new List<CImageBuffer>();
+        List<CImageByte> imgs =  new List<CImageByte>();
         public CImageBuffer Ret
         { get
             {

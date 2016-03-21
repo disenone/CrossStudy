@@ -1,10 +1,11 @@
 #pragma once
 
 #include "cimageUtil.h"
+#include "Helper.h"
 #include <string>
 #include <vector>
 #include <tuple>
-//#include <iostream>
+
 
 namespace cimage
 {
@@ -25,6 +26,7 @@ struct CImage
 	CImage(int w, int h, int c) :
 		width(w), height(h), channel(c)
 	{
+		Tools::printLog("CImage");
 		create();
 	}
 
@@ -35,14 +37,19 @@ struct CImage
 
 	CImage(const CImage& img)
 	{
+		Tools::printLog("CImage&");
 		clear();
 		memcpy(this, &img, sizeof(CImage));
-		create();
-		memcpy(pbuf, img.pbuf, byteLength());
+		if (img.selfgc)
+		{
+			create();
+			memcpy(pbuf, img.pbuf, byteLength());
+		}
 	}
 
 	CImage(CImage&& img)
 	{
+		Tools::printLog("CImage&&");
 		clear();
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
@@ -124,6 +131,15 @@ struct CImage
 	inline int byteLength() const
 	{
 		return length * sizeof(T);
+	}
+
+	std::string toString() const
+	{
+		char buf[512];
+		sprintf(buf, "width = %d, height = %d, channel = %d, pbuf = 0x%x, selfgc = %d", width,
+			height, channel, (int)pbuf, selfgc);
+
+		return std::string(buf);
 	}
 };
 

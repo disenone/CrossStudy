@@ -12,11 +12,12 @@ using namespace cimage::Tools;
 
 static ImageMatchMerge imm;
 
+
 int cimage::runImageMerge(CImage_uint8_t* pimgs, int len, CImage_uint8_t* pout)
 {
 	printLog("test log in native code.");
 
-	ImageMatchMerge imm(pimgs, len);
+	imm.setInput(pimgs, len);
 
 	imm.run();
 
@@ -41,7 +42,10 @@ void ImageMatchMerge::setInput(CImage_uint8_t* pbuf, int len)
 	m_pimgs.clear();
 	for (int i = 0; i < len; ++i)
 	{
-		m_pimgs.emplace_back(pbuf[i].makeTempCopy());
+		printLog("img %d info: %s", i, pbuf[i].toString().c_str());
+		auto img = pbuf[i].makeTempCopy();
+		printLog("img %d temp info: %s", i, img.toString().c_str());
+		m_pimgs.emplace_back(img);
 	}
 }
 
@@ -70,7 +74,7 @@ CImage_uint32_t ImageMatchMerge::sumImageRow(const CImage_uint8_t& input)
 		}
 		pret += ret.stride();
 	}
-
+	printLog("sumImageRow");
 	return ret;
 }
 
@@ -217,6 +221,9 @@ int ImageMatchMerge::avgMatchImages(const CImage<T>& top, const CImage<T>& down)
 
 bool ImageMatchMerge::run()
 {
+	CImage_uint32_t ii(1000, 1000, 4);
+	printLog("ii");
+
 	clock_t begin = clock(), end = 0;
 	float elapsed_time = 0;
 
@@ -227,11 +234,12 @@ bool ImageMatchMerge::run()
 
 	const int width = m_pimgs[0].width, height = m_pimgs[0].height, channel = m_pimgs[0].channel;
 
-	for (int i = 1; i < num; ++i)
+	for (int i = 0; i < num; ++i)
 	{
-		if (m_pimgs[1].width != width || m_pimgs[i].channel != channel)
+		printLog("img %d info: %s", i, m_pimgs[i].toString().c_str());
+		if (m_pimgs[i].width != width || m_pimgs[i].channel != channel)
 		{
-			cout << "width or channel of images are different !!" << endl;
+			printLog("width or channel of images are different !!");
 			return false;
 		}
 	}
@@ -300,7 +308,9 @@ bool ImageMatchMerge::run()
 	const int res_width = width;
 	const int res_height = height * 3 - (head + tail) * 2 - matchall;
 	const int res_channel = channel;
+	printLog("ret create before");
 	result = CImage_uint8_t(res_width, res_height, res_channel);
+	printLog("ret create after");
 
 	uint8_t* pcur = result.pbuf;
 
