@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cimageUtil.h"
 #include <string>
 
 namespace cimage 
@@ -11,9 +12,10 @@ namespace Tools
 
 	void setDebugLogFunc(DebugLogFunc);
 
-	void printLog(const char* fmt, ...);
+	EXPORT void printLog(const char* fmt, ...);
 
-	void printLog(const std::string& log);
+	EXPORT void printLog(const std::string& log);
 
+	EXPORT void printTrace();
 }
 }

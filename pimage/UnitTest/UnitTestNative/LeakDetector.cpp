@@ -394,6 +394,7 @@ LeakDetect::~LeakDetect()
 
 bool LeakDetect::check()
 {
+	//printTrace();
 	return leakd.check();
 }
 
@@ -443,8 +444,8 @@ void printLastError()
 	logMessage(buf);
 }
 
-LPCWSTR getFunctionName(SIZE_T programCounter, DWORD64& displacement64,
-	SYMBOL_INFOW* functionInfo)
+LPCSTR getFunctionName(SIZE_T programCounter, DWORD64& displacement64,
+	SYMBOL_INFO* functionInfo)
 {
 	// Initialize structures passed to the symbol handler.
 	functionInfo->SizeOfStruct = sizeof(SYMBOL_INFOW);
@@ -453,15 +454,15 @@ LPCWSTR getFunctionName(SIZE_T programCounter, DWORD64& displacement64,
 	// Try to get the name of the function containing this program
 	// counter address.
 	displacement64 = 0;
-	LPCWSTR functionName;
+	LPCSTR functionName;
 	HANDLE hProcess = GetCurrentProcess();
-	if (SymFromAddrW(hProcess, programCounter, &displacement64, functionInfo)) {
+	if (SymFromAddr(hProcess, programCounter, &displacement64, functionInfo)) {
 		functionName = functionInfo->Name;
 	}
 	else {
 		printLastError();
 		// GetFormattedMessage( GetLastError() );
-		swprintf_s(functionInfo->Name, (size_t)256, L"0x%x", programCounter);
+		sprintf_s(functionInfo->Name, (size_t)256, "0x%x", programCounter);
 		functionName = functionInfo->Name;
 		displacement64 = 0;
 	}
@@ -480,36 +481,37 @@ HMODULE GetCallingModule(UINT_PTR pCaller)
 	return hModule;
 }
 
-DWORD resolveFunction(SIZE_T programCounter, IMAGEHLP_LINEW64* sourceInfo, DWORD displacement,
-	LPCWSTR functionName, LPWSTR stack_line, DWORD stackLineSize)
+DWORD resolveFunction(SIZE_T programCounter, IMAGEHLP_LINE* sourceInfo, DWORD displacement,
+	LPCSTR functionName, LPSTR stack_line, DWORD stackLineSize)
 {
-	WCHAR callingModuleName[260];
+	char callingModuleName[260];
 	HMODULE hCallingModule = GetCallingModule(programCounter);
-	LPWSTR moduleName = L"(Module name unavailable)";
+	LPSTR moduleName = "(Module name unavailable)";
 	if (hCallingModule &&
-		GetModuleFileName(hCallingModule, callingModuleName, _countof(callingModuleName)) > 0)
+		GetModuleFileNameA(hCallingModule, callingModuleName, _countof(callingModuleName)) > 0)
 	{
-		moduleName = wcsrchr(callingModuleName, L'\\');
+		
+		moduleName = strrchr(callingModuleName, '\\');
 		if (moduleName == NULL)
-			moduleName = wcsrchr(callingModuleName, L'/');
+			moduleName = strrchr(callingModuleName, '/');
 		if (moduleName != NULL)
 			moduleName++;
 		else
 			moduleName = callingModuleName;
 	}
-	ZeroMemory(stack_line, stackLineSize * sizeof(WCHAR));
+	ZeroMemory(stack_line, stackLineSize * sizeof(char));
 	// Display the current stack frame's information.
 	if (sourceInfo)
 	{
 		if (displacement == 0)
 		{
-			swprintf_s(stack_line, stackLineSize, L"    %s (%d): %s!%s()\n",
+			sprintf_s(stack_line, stackLineSize, "    %s (%d): %s!%s()\n",
 				sourceInfo->FileName, sourceInfo->LineNumber, moduleName,
 				functionName);
 		}
 		else
 		{
-			swprintf_s(stack_line, stackLineSize, L"    %s (%d): %s!%s() + 0x%x bytes\n",
+			sprintf_s(stack_line, stackLineSize, "    %s (%d): %s!%s() + 0x%x bytes\n",
 				sourceInfo->FileName, sourceInfo->LineNumber, moduleName,
 				functionName, displacement);
 		}
@@ -518,17 +520,17 @@ DWORD resolveFunction(SIZE_T programCounter, IMAGEHLP_LINEW64* sourceInfo, DWORD
 	{
 		if (displacement == 0)
 		{
-			swprintf_s(stack_line, stackLineSize, L"    %s!%s()\n",
+			sprintf_s(stack_line, stackLineSize, "    %s!%s()\n",
 				moduleName, functionName);
 		}
 		else
 		{
-			swprintf_s(stack_line, stackLineSize, L"    %s!%s() + 0x%x bytes\n",
+			sprintf_s(stack_line, stackLineSize, "    %s!%s() + 0x%x bytes\n",
 				moduleName, functionName, displacement);
 		}
 	}
 
-	LPWSTR end = find(stack_line, stack_line + stackLineSize, L'\0');
+	LPSTR end = find(stack_line, stack_line + stackLineSize, '\0');
 	DWORD NumChars = (DWORD)(end - stack_line);
 	stack_line[NumChars] = L'\0';
 	return NumChars;
@@ -551,19 +553,19 @@ void printTrace(const UINT_PTR* pFrame/* = nullptr*/, size_t frameSize/* = 0*/)
 	UINT32  startIndex = 0;
 
 	int unresolvedFunctionsCount = 0;
-	IMAGEHLP_LINEW64  sourceInfo = { 0 };
-	sourceInfo.SizeOfStruct = sizeof(IMAGEHLP_LINEW64);
+	IMAGEHLP_LINE  sourceInfo = { 0 };
+	sourceInfo.SizeOfStruct = sizeof(IMAGEHLP_LINE);
 
 	// Use static here to increase performance, and avoid heap allocs.
 	// It's thread safe because of g_heapMapLock lock.
-	static WCHAR stack_line[1024] = L"";
+	static char stack_line[1024] = "";
 	bool isPrevFrameInternal = false;
 	DWORD NumChars = 0;
 
 	const size_t max_line_length = 512;
 	const int resolvedCapacity = 62 * max_line_length;
-	const size_t allocedBytes = resolvedCapacity * sizeof(WCHAR);
-	WCHAR resolved[resolvedCapacity];
+	const size_t allocedBytes = resolvedCapacity * sizeof(char);
+	char resolved[resolvedCapacity];
 	if (resolved) {
 		ZeroMemory(resolved, allocedBytes);
 	}
@@ -579,15 +581,15 @@ void printTrace(const UINT_PTR* pFrame/* = nullptr*/, size_t frameSize/* = 0*/)
 		SIZE_T programCounter = pFrame[frame];
 
 		DWORD64 displacement64;
-		BYTE symbolBuffer[sizeof(SYMBOL_INFOW) + 256 * sizeof(WCHAR)];
-		LPCWSTR functionName = getFunctionName(programCounter, displacement64, (SYMBOL_INFOW*)&symbolBuffer);
+		BYTE symbolBuffer[sizeof(SYMBOL_INFO) + 256 * sizeof(char)];
+		LPCSTR functionName = getFunctionName(programCounter, displacement64, (SYMBOL_INFO*)&symbolBuffer);
 
 		// It turns out that calls to SymGetLineFromAddrW64 may free the very memory we are scrutinizing here
 		// in this method. If this is the case, m_Resolved will be null after SymGetLineFromAddrW64 returns.
 		// When that happens there is nothing we can do except crash.
 		DWORD            displacement = 0;
 
-		BOOL foundline = SymGetLineFromAddrW64(hProcess, programCounter, &displacement, &sourceInfo);
+		BOOL foundline = SymGetLineFromAddr(hProcess, programCounter, &displacement, &sourceInfo);
 
 		bool isFrameInternal = false;
 
@@ -595,7 +597,7 @@ void printTrace(const UINT_PTR* pFrame/* = nullptr*/, size_t frameSize/* = 0*/)
 		if (NumChars > 0 && !isFrameInternal && isPrevFrameInternal) {
 			resolvedLength += NumChars;
 			if (resolved) {
-				wcsncat_s(resolved, resolvedCapacity, stack_line, NumChars);
+				strncat_s(resolved, resolvedCapacity, stack_line, NumChars);
 			}
 		}
 		isPrevFrameInternal = isFrameInternal;
@@ -608,7 +610,7 @@ void printTrace(const UINT_PTR* pFrame/* = nullptr*/, size_t frameSize/* = 0*/)
 		if (NumChars > 0 && !isFrameInternal) {
 			resolvedLength += NumChars;
 			if (resolved) {
-				wcsncat_s(resolved, resolvedCapacity, stack_line, NumChars);
+				strncat_s(resolved, resolvedCapacity, stack_line, NumChars);
 			}
 		}
 	} // end for loop

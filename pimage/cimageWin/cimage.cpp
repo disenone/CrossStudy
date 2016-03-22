@@ -6,6 +6,7 @@
 #include "cimage.h"
 #include "Helper.h"
 
+
 using namespace std;
 using namespace cimage;
 using namespace cimage::Tools;
@@ -15,9 +16,9 @@ static ImageMatchMerge imm;
 
 int cimage::runImageMerge(CImage_uint8_t* pimgs, int len, CImage_uint8_t* pout)
 {
-	printLog("test log in native code.");
-
 	imm.setInput(pimgs, len);
+
+	printLog("run");
 
 	imm.run();
 
@@ -39,14 +40,14 @@ ImageMatchMerge::ImageMatchMerge(CImage_uint8_t* pbuf, int len)
 
 void ImageMatchMerge::setInput(CImage_uint8_t* pbuf, int len)
 {
+	printLog("setInput1");
 	m_pimgs.clear();
 	for (int i = 0; i < len; ++i)
 	{
 		printLog("img %d info: %s", i, pbuf[i].toString().c_str());
-		auto img = pbuf[i].makeTempCopy();
-		printLog("img %d temp info: %s", i, img.toString().c_str());
-		m_pimgs.emplace_back(img);
+		m_pimgs.emplace_back(move(pbuf[i].makeTempCopy()));
 	}
+	printLog("setInput");
 }
 
 void ImageMatchMerge::clear()
@@ -74,7 +75,6 @@ CImage_uint32_t ImageMatchMerge::sumImageRow(const CImage_uint8_t& input)
 		}
 		pret += ret.stride();
 	}
-	printLog("sumImageRow");
 	return ret;
 }
 
@@ -221,8 +221,8 @@ int ImageMatchMerge::avgMatchImages(const CImage<T>& top, const CImage<T>& down)
 
 bool ImageMatchMerge::run()
 {
-	CImage_uint32_t ii(1000, 1000, 4);
-	printLog("ii");
+// 	CImage_uint32_t ii(1000, 1000, 4);
+// 	printLog("ii");
 
 	clock_t begin = clock(), end = 0;
 	float elapsed_time = 0;
@@ -243,9 +243,10 @@ bool ImageMatchMerge::run()
 			return false;
 		}
 	}
-
+	printLog("sums");
 	vector<CImage_uint32_t > sums(num);
 
+	printLog("sumImageRow");
 	// sum image block 
 	for (int i = 0; i < num; ++i)
 		sums[i] = sumImageRow(m_pimgs[i]);

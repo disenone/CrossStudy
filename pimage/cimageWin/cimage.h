@@ -26,7 +26,6 @@ struct CImage
 	CImage(int w, int h, int c) :
 		width(w), height(h), channel(c)
 	{
-		Tools::printLog("CImage");
 		create();
 	}
 
@@ -37,19 +36,14 @@ struct CImage
 
 	CImage(const CImage& img)
 	{
-		Tools::printLog("CImage&");
 		clear();
 		memcpy(this, &img, sizeof(CImage));
-		if (img.selfgc)
-		{
-			create();
-			memcpy(pbuf, img.pbuf, byteLength());
-		}
+		create();
+		memcpy(pbuf, img.pbuf, byteLength());
 	}
 
 	CImage(CImage&& img)
 	{
-		Tools::printLog("CImage&&");
 		clear();
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
@@ -86,6 +80,8 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
+			//Tools::printLog("CImage clear: %s", this->toString().c_str());
+			//Tools::printTrace();
 			delete pbuf;
 			pbuf = nullptr;
 		}
@@ -93,14 +89,13 @@ struct CImage
 
 	void create()
 	{
-		clear();
-
 		length = width * height * channel;
 		if (length > 0)
 		{
 			pbuf = new T[length];
 			selfgc = 1;
 			memset(pbuf, 0, byteLength());
+			//Tools::printLog("CImage create: %s", this->toString().c_str());
 		}
 	}
 
@@ -136,8 +131,8 @@ struct CImage
 	std::string toString() const
 	{
 		char buf[512];
-		sprintf(buf, "width = %d, height = %d, channel = %d, pbuf = 0x%x, selfgc = %d", width,
-			height, channel, (int)pbuf, selfgc);
+		sprintf(buf, "0x%x: width = %d, height = %d, channel = %d, pbuf = 0x%x, selfgc = %d", (int)this,
+			width, height, channel, (int)pbuf, selfgc);
 
 		return std::string(buf);
 	}

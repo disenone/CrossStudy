@@ -38,6 +38,11 @@ void runIO()
 	save_image(img, "save.png");
 }
 
+CImage_uint8_t getImg()
+{
+	return CImage_uint8_t(1, 2, 1);
+}
+
 void runGC()
 {
 	{
@@ -49,11 +54,27 @@ void runGC()
 	auto img = CImage_uint8_t(1, 1, 1);
 
 	img = CImage_uint8_t(2, 2, 2);
+
+	CImage_uint8_t img2(getImg());
+	printLog("%d", img2.pbuf[0]);
+}
+
+void runGCNew()
+{
+	auto img = CImage_uint8_t(1, 1, 1);
+
+	CImage_uint8_t* pimg = new CImage_uint8_t();
+
+	new((void*)pimg) CImage_uint8_t(std::move(getImg()));
+
+	printLog("%d", pimg->pbuf[0]);
+
+	delete pimg;
 }
 
 int main()
 {
-
+	//runGCNew();
 	runMerge();
 
 	//runGC();
