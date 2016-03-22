@@ -532,7 +532,7 @@ DWORD resolveFunction(SIZE_T programCounter, IMAGEHLP_LINE* sourceInfo, DWORD di
 
 	LPSTR end = find(stack_line, stack_line + stackLineSize, '\0');
 	DWORD NumChars = (DWORD)(end - stack_line);
-	stack_line[NumChars] = L'\0';
+	stack_line[NumChars] = '\0';
 	return NumChars;
 }
 

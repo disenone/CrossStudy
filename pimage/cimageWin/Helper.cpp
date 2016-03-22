@@ -24,7 +24,7 @@ void setDebugLogFunc(DebugLogFunc func)
 
 void printLog(const char* fmt, ...)
 {
-	char buffer[1024];
+	char buffer[2048];
 	va_list args;
 	va_start(args, fmt);
 	vsnprintf(buffer, sizeof(buffer), fmt, args);
@@ -41,7 +41,13 @@ void printLog(const char* fmt, ...)
 
 void printLog(const std::string& log)
 {
-	printLog(log.data());
+	if (!DebugLogF)
+	{
+		cout << log << endl;
+		return;
+	}
+
+	DebugLogF(log.c_str());
 }
 
 #ifdef __APPLE__
@@ -111,7 +117,7 @@ LPCSTR getFunctionName(SIZE_T programCounter, DWORD64& displacement64,
 	SYMBOL_INFO* functionInfo)
 {
 	// Initialize structures passed to the symbol handler.
-	functionInfo->SizeOfStruct = sizeof(SYMBOL_INFOW);
+	functionInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
 	functionInfo->MaxNameLen = 256;
 
 	// Try to get the name of the function containing this program
@@ -195,15 +201,21 @@ DWORD resolveFunction(SIZE_T programCounter, IMAGEHLP_LINE* sourceInfo, DWORD di
 
 	LPSTR end = find(stack_line, stack_line + stackLineSize, '\0');
 	DWORD NumChars = (DWORD)(end - stack_line);
-	stack_line[NumChars] = L'\0';
+	stack_line[NumChars] = '\0';
 	return NumChars;
 }
 
 void printTrace()
 {
+	SymInitialize(GetCurrentProcess(), NULL, TRUE);
 
 	UINT32 maxframes = 62;
 	UINT_PTR myFrames[62];
+
+	ZeroMemory(myFrames, sizeof(UINT_PTR) * maxframes);
+	ULONG BackTraceHash;
+	maxframes = CaptureStackBackTrace(0, maxframes, reinterpret_cast<PVOID*>(myFrames), &BackTraceHash);
+
 	const UINT_PTR* pFrame = myFrames;
 	const size_t frameSize = maxframes;
 
@@ -273,6 +285,7 @@ void printTrace()
 	} // end for loop
 	printLog(resolved);
 
+	SymCleanup(GetCurrentProcess());
 	return;
 }
 #else

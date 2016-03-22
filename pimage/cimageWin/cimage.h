@@ -36,7 +36,6 @@ struct CImage
 
 	CImage(const CImage& img)
 	{
-		clear();
 		memcpy(this, &img, sizeof(CImage));
 		create();
 		memcpy(pbuf, img.pbuf, byteLength());
@@ -44,7 +43,6 @@ struct CImage
 
 	CImage(CImage&& img)
 	{
-		clear();
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
 	}
@@ -80,11 +78,12 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
-			//Tools::printLog("CImage clear: %s", this->toString().c_str());
-			//Tools::printTrace();
+			Tools::printLog("CImage clear: %s", this->toString().c_str());
+			Tools::printTrace();
 			delete pbuf;
 			pbuf = nullptr;
 		}
+		memset(this, 0, sizeof(CImage));
 	}
 
 	void create()

@@ -74,8 +74,8 @@ void runGCNew()
 
 int main()
 {
-	//runGCNew();
-	runMerge();
+	runGCNew();
+	//runMerge();
 
 	//runGC();
 
