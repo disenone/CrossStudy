@@ -4,6 +4,7 @@
 
 #ifdef __APPLE__
 #include <execinfo.h>
+#include <signal.h>
 #elif defined(WIN32)
 #include <windows.h>
 #include <DbgHelp.h>
@@ -62,7 +63,7 @@ void printTrace()
 	char ** messages = backtrace_symbols(array, size);
 
 	for (int i = 0; i < size && messages != NULL; ++i) {
-		std::cerr << "[trace]: (" << i << ") " << messages[i] << std::endl;
+		std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
 	}
 	std::cerr << std::endl;
 

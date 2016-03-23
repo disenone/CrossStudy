@@ -1,10 +1,11 @@
+#include "cimage.h"
+#include "Helper.h"
 #include <iostream>
 #include <string>
 #include <ctime>
 #include <cassert>
 #include <algorithm>
-#include "cimage.h"
-#include "Helper.h"
+#include <exception>
 
 
 using namespace std;
@@ -16,13 +17,21 @@ static ImageMatchMerge imm;
 
 int cimage::runImageMerge(CImage_uint8_t* pimgs, int len, CImage_uint8_t* pout)
 {
-	imm.setInput(pimgs, len);
+	try
+	{
+		imm.setInput(pimgs, len);
 
-	printLog("run");
+		printLog("run");
 
-	imm.run();
+		imm.run();
 
-	*pout = imm.result.makeTempCopy();
+		*pout = imm.result.makeTempCopy();
+	}
+	catch (const exception& e)
+	{
+		printLog("Caught an exception: %s", e.what());
+		return 0;
+	}
 
 	return 1;
 }
@@ -40,14 +49,12 @@ ImageMatchMerge::ImageMatchMerge(CImage_uint8_t* pbuf, int len)
 
 void ImageMatchMerge::setInput(CImage_uint8_t* pbuf, int len)
 {
-	printLog("setInput1");
 	m_pimgs.clear();
 	for (int i = 0; i < len; ++i)
 	{
 		printLog("img %d info: %s", i, pbuf[i].toString().c_str());
 		m_pimgs.emplace_back(move(pbuf[i].makeTempCopy()));
 	}
-	printLog("setInput");
 }
 
 void ImageMatchMerge::clear()
@@ -221,8 +228,8 @@ int ImageMatchMerge::avgMatchImages(const CImage<T>& top, const CImage<T>& down)
 
 bool ImageMatchMerge::run()
 {
-// 	CImage_uint32_t ii(1000, 1000, 4);
-// 	printLog("ii");
+// 	int* p = nullptr;
+// 	*p = 0;
 
 	clock_t begin = clock(), end = 0;
 	float elapsed_time = 0;

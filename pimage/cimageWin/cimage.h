@@ -78,8 +78,8 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
-			Tools::printLog("CImage clear: %s", this->toString().c_str());
-			Tools::printTrace();
+			//Tools::printLog("CImage clear: %s", this->toString().c_str());
+			//Tools::printTrace();
 			delete pbuf;
 			pbuf = nullptr;
 		}

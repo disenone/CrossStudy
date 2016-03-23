@@ -21,11 +21,12 @@ void runMerge()
 		imgs.push_back(load_image(filename));
 	}
 
-	ImageMatchMerge imm(imgs.data(), imgs.size());
+	CImage_uint8_t out;
+	
+	int success = runImageMerge(imgs.data(), imgs.size(), &out);
 
-	imm.run();
-
-	save_image(imm.result, "res.png");
+	if(success)
+		save_image(out, "res.png");
 }
 
 void runIO()
@@ -67,15 +68,15 @@ void runGCNew()
 
 	new((void*)pimg) CImage_uint8_t(std::move(getImg()));
 
-	printLog("%d", pimg->pbuf[0]);
+	printLog("pimg->pbuf[0]: %d", pimg->pbuf[0]);
 
 	delete pimg;
 }
 
 int main()
 {
-	runGCNew();
-	//runMerge();
+	//runGCNew();
+	runMerge();
 
 	//runGC();
 
