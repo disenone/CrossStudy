@@ -1,10 +1,12 @@
+#include "cimage.h"
+#include "Helper.h"
 #include <iostream>
 #include <string>
 #include <ctime>
 #include <cassert>
 #include <algorithm>
-#include "cimage.h"
-#include "Helper.h"
+#include <exception>
+
 
 using namespace std;
 using namespace cimage;
@@ -12,15 +14,24 @@ using namespace cimage::Tools;
 
 static ImageMatchMerge imm;
 
+
 int cimage::runImageMerge(CImage_uint8_t* pimgs, int len, CImage_uint8_t* pout)
 {
-	printLog("test log in native code.");
+	try
+	{
+		imm.setInput(pimgs, len);
 
-	ImageMatchMerge imm(pimgs, len);
+		printLog("run");
 
-	imm.run();
+		imm.run();
 
-	*pout = imm.result.makeTempCopy();
+		*pout = imm.result.makeTempCopy();
+	}
+	catch (const exception& e)
+	{
+		printLog("Caught an exception: %s", e.what());
+		return 0;
+	}
 
 	return 1;
 }
@@ -41,7 +52,8 @@ void ImageMatchMerge::setInput(CImage_uint8_t* pbuf, int len)
 	m_pimgs.clear();
 	for (int i = 0; i < len; ++i)
 	{
-		m_pimgs.emplace_back(pbuf[i].makeTempCopy());
+		printLog("img %d info: %s", i, pbuf[i].toString().c_str());
+		m_pimgs.emplace_back(move(pbuf[i].makeTempCopy()));
 	}
 }
 
@@ -70,7 +82,6 @@ CImage_uint32_t ImageMatchMerge::sumImageRow(const CImage_uint8_t& input)
 		}
 		pret += ret.stride();
 	}
-
 	return ret;
 }
 
@@ -217,6 +228,9 @@ int ImageMatchMerge::avgMatchImages(const CImage<T>& top, const CImage<T>& down)
 
 bool ImageMatchMerge::run()
 {
+// 	int* p = nullptr;
+// 	*p = 0;
+
 	clock_t begin = clock(), end = 0;
 	float elapsed_time = 0;
 
@@ -227,17 +241,19 @@ bool ImageMatchMerge::run()
 
 	const int width = m_pimgs[0].width, height = m_pimgs[0].height, channel = m_pimgs[0].channel;
 
-	for (int i = 1; i < num; ++i)
+	for (int i = 0; i < num; ++i)
 	{
-		if (m_pimgs[1].width != width || m_pimgs[i].channel != channel)
+		printLog("img %d info: %s", i, m_pimgs[i].toString().c_str());
+		if (m_pimgs[i].width != width || m_pimgs[i].channel != channel)
 		{
-			cout << "width or channel of images are different !!" << endl;
+			printLog("width or channel of images are different !!");
 			return false;
 		}
 	}
-
+	printLog("sums");
 	vector<CImage_uint32_t > sums(num);
 
+	printLog("sumImageRow");
 	// sum image block 
 	for (int i = 0; i < num; ++i)
 		sums[i] = sumImageRow(m_pimgs[i]);
@@ -300,7 +316,9 @@ bool ImageMatchMerge::run()
 	const int res_width = width;
 	const int res_height = height * 3 - (head + tail) * 2 - matchall;
 	const int res_channel = channel;
+	printLog("ret create before");
 	result = CImage_uint8_t(res_width, res_height, res_channel);
+	printLog("ret create after");
 
 	uint8_t* pcur = result.pbuf;
 

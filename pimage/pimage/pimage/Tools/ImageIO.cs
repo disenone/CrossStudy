@@ -10,9 +10,9 @@ namespace pimage.Tools
 
     public interface ImageIO
     {
-        byte[] LoadImageFromEmbeddedResource(string filename);
+        CImageByte LoadImageFromEmbeddedResource(string filename);
 
-        byte[] ToPng(byte[] rgba, int width);
+        byte[] ToPng(CImageByte img);
     }
 
 }

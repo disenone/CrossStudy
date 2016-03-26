@@ -26,7 +26,7 @@
     <MtouchArch>i386</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>True</MtouchDebug>
-    <MtouchSdkVersion />
+    <MtouchSdkVersion>9.2</MtouchSdkVersion>
     <MtouchProfiling>False</MtouchProfiling>
     <MtouchFastDev>False</MtouchFastDev>
     <MtouchUseLlvm>False</MtouchUseLlvm>
@@ -62,11 +62,11 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchDebug>True</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <MtouchSdkVersion />
+    <MtouchSdkVersion>9.2</MtouchSdkVersion>
     <MtouchLink>SdkOnly</MtouchLink>
     <MtouchProfiling>False</MtouchProfiling>
     <MtouchFastDev>False</MtouchFastDev>
-    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/Github/CrossStudy/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/ -lSharedLibrary1.iOS -force_load /Users/lgl/vcremote/G/Program/Github/CrossStudy/cross5/SharedLibrary1/SharedLibrary1.iOS/Debug/i386/libSharedLibrary1.iOS.a"</MtouchExtraArgs>
+    <MtouchExtraArgs> -cxx -gcc_flags "-L$GITHUB_DIR/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load $GITHUB_DIR/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
     <MtouchUseLlvm>False</MtouchUseLlvm>
     <MtouchUseThumb>False</MtouchUseThumb>
     <MtouchUseSGen>False</MtouchUseSGen>

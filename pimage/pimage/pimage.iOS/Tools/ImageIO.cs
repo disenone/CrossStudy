@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Text;
 using UIKit;
 using CoreGraphics;
-
+using pimage.Tools;
 
 [assembly: Xamarin.Forms.Dependency(typeof(pimage.iOS.Tools.ImageIOIOS))]
 namespace pimage.iOS.Tools
 {
     public class ImageIOIOS : pimage.Tools.ImageIO
     {
-        public byte[] LoadImageFromEmbeddedResource(string filename)
+        public CImageByte LoadImageFromEmbeddedResource(string filename)
         {
-
-            var uimg = UIImage.FromFile(filename);
+            
+            var uimg = UIImage.LoadFromData(Foundation.NSData.FromStream(
+                pimage.Tools.ResourceLoader.GetEmbeddedResourceStream(filename)
+                ));
             var cimg = uimg.CGImage;
 
             //Console.WriteLine("bytesperrow: " + cimg.BytesPerRow.ToString());
@@ -27,23 +29,27 @@ namespace pimage.iOS.Tools
                 bytesPerRow, colorSpace, CGImageAlphaInfo.PremultipliedLast);
             context.DrawImage(new CGRect(0, 0, cimg.Width, cimg.Height), cimg);
 
-            return bimg;
+            return new CImageByte(bimg, (uint)cimg.Width, 4);
 
         }
         
-        public byte[] ToPng(byte[] rgba, int width)
+        public byte[] ToPng(CImageByte img)
         {
-            var provider = new CGDataProvider(rgba, 0, rgba.Length);
+            var provider = new CGDataProvider(img.Bytes, 0, (int)img.Length);
             int bitsPerComponent = 8;
-            int components = 4;
-            int height = rgba.Length / components / width;
+            int components = (int)img.Channel;
             int bitsPerPixel = components * bitsPerComponent;
-            int bytesPerRow = components * width;   // Tip:  When you create a bitmap graphics context, you’ll get the best performance if you make sure the data and bytesPerRow are 16-byte aligned.
+            int bytesPerRow = (int)img.Stride;
+
+            // Tip:  When you create a bitmap graphics context, 
+            // you’ll get the best performance if you make sure the data and bytesPerRow are 16-byte aligned.
+
             bool shouldInterpolate = false;
             var colorSpace = CGColorSpace.CreateDeviceRGB();
-            var cgImage = new CGImage(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow,
-                                      colorSpace, CGImageAlphaInfo.PremultipliedLast, provider,
-                                      null, shouldInterpolate, CGColorRenderingIntent.Default);
+            var cgImage = new CGImage(
+                (int)img.Width, (int)img.Height, bitsPerComponent, bitsPerPixel, bytesPerRow,
+                 colorSpace, CGImageAlphaInfo.PremultipliedLast, provider,
+                 null, shouldInterpolate, CGColorRenderingIntent.Default);
 
             var uimg = UIImage.FromImage(cgImage);
             return uimg.AsPNG().ToArray();

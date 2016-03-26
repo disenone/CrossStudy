@@ -11,6 +11,7 @@ using Android.Widget;
 using Android.Graphics;
 using System.IO;
 using System.Reflection;
+using pimage.Tools;
 
 
 [assembly: Xamarin.Forms.Dependency(typeof(pimage.Droid.Tools.ImageIODroid))]
@@ -18,7 +19,7 @@ namespace pimage.Droid.Tools
 {
     public class ImageIODroid : pimage.Tools.ImageIO
     {
-        public byte[] LoadImageFromEmbeddedResource(string filename)
+        public CImageByte LoadImageFromEmbeddedResource(string filename)
         {
             var stream = pimage.Tools.ResourceLoader.GetEmbeddedResourceStream(filename);
             var bitmap = BitmapFactory.DecodeStream(stream);
@@ -26,21 +27,21 @@ namespace pimage.Droid.Tools
             byte[] bytedata = new byte[bitmap.ByteCount];
             System.Runtime.InteropServices.Marshal.Copy(bmpdata, bytedata, 0, bitmap.ByteCount);
 
-            return bytedata;
+            return new CImageByte(bytedata, (uint)bitmap.Width, 4);
         }
 
-        public byte[] ToPng(byte[] rgba, int width)
+        public byte[] ToPng(CImageByte img)
         {
-            int components = 4;
-            int height = rgba.Length / components / width;
+            if (img.Channel != 4)
+                return null;
 
-            Bitmap img = Bitmap.CreateBitmap(width, height, Bitmap.Config.Argb8888);
+            Bitmap bitmap = Bitmap.CreateBitmap((int)img.Width, (int)img.Height, Bitmap.Config.Argb8888);
 
-            var byteBuffer = Java.Nio.ByteBuffer.Wrap(rgba);
-            img.CopyPixelsFromBuffer(byteBuffer);
+            var byteBuffer = Java.Nio.ByteBuffer.Wrap(img.Bytes);
+            bitmap.CopyPixelsFromBuffer(byteBuffer);
 
             MemoryStream stream = new MemoryStream();
-            img.Compress(Bitmap.CompressFormat.Png, 50, stream);
+            bitmap.Compress(Bitmap.CompressFormat.Png, 50, stream);
 
             return stream.ToArray();
         }

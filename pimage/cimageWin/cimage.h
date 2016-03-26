@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cimageUtil.h"
+#include "Helper.h"
 #include <string>
 #include <vector>
 #include <tuple>
@@ -35,7 +36,6 @@ struct CImage
 
 	CImage(const CImage& img)
 	{
-		clear();
 		memcpy(this, &img, sizeof(CImage));
 		create();
 		memcpy(pbuf, img.pbuf, byteLength());
@@ -43,7 +43,6 @@ struct CImage
 
 	CImage(CImage&& img)
 	{
-		clear();
 		memcpy(this, &img, sizeof(CImage));
 		img.selfgc = 0;
 	}
@@ -79,21 +78,23 @@ struct CImage
 	{
 		if (selfgc && pbuf)
 		{
+			//Tools::printLog("CImage clear: %s", this->toString().c_str());
+			//Tools::printTrace();
 			delete pbuf;
 			pbuf = nullptr;
 		}
+		memset(this, 0, sizeof(CImage));
 	}
 
 	void create()
 	{
-		clear();
-
 		length = width * height * channel;
 		if (length > 0)
 		{
 			pbuf = new T[length];
 			selfgc = 1;
 			memset(pbuf, 0, byteLength());
+			//Tools::printLog("CImage create: %s", this->toString().c_str());
 		}
 	}
 
@@ -124,6 +125,15 @@ struct CImage
 	inline int byteLength() const
 	{
 		return length * sizeof(T);
+	}
+
+	std::string toString() const
+	{
+		char buf[512];
+		sprintf(buf, "0x%x: width = %d, height = %d, channel = %d, pbuf = 0x%x, selfgc = %d", (int)this,
+			width, height, channel, (int)pbuf, selfgc);
+
+		return std::string(buf);
 	}
 };
 
