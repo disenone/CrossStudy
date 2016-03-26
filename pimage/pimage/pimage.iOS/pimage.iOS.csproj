@@ -35,7 +35,9 @@
     <MtouchUseRefCounting>False</MtouchUseRefCounting>
     <MtouchOptimizePNGs>True</MtouchOptimizePNGs>
     <MtouchI18n />
-    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load /Users/lgl/vcremote/G/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
+    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/E/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load /Users/lgl/vcremote/E/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
+    <OptimizePNGs>True</OptimizePNGs>
+    <MtouchFloat32>False</MtouchFloat32>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -160,14 +162,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Xamarin.iOS" />
-  </ItemGroup>
-  <ItemGroup>
-    <ImageAsset Include="Resources/ImageIO.xcassets/AppIcons.appiconset/Contents.json">
-      <InProject>false</InProject>
-    </ImageAsset>
-    <ImageAsset Include="Resources/ImageIO.xcassets/LaunchImages.launchimage/Contents.json">
-      <InProject>false</InProject>
-    </ImageAsset>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Forms.1.3.3.6323\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.1.3.3.6323\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
