@@ -35,7 +35,9 @@
     <MtouchUseRefCounting>False</MtouchUseRefCounting>
     <MtouchOptimizePNGs>True</MtouchOptimizePNGs>
     <MtouchI18n />
-    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load /Users/lgl/vcremote/G/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
+    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/E/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load /Users/lgl/vcremote/E/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
+    <OptimizePNGs>True</OptimizePNGs>
+    <MtouchFloat32>False</MtouchFloat32>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
