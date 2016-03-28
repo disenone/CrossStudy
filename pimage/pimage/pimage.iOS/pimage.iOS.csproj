@@ -26,7 +26,8 @@
     <MtouchArch>i386</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>True</MtouchDebug>
-    <MtouchSdkVersion>9.2</MtouchSdkVersion>
+    <MtouchSdkVersion>
+    </MtouchSdkVersion>
     <MtouchProfiling>False</MtouchProfiling>
     <MtouchFastDev>False</MtouchFastDev>
     <MtouchUseLlvm>False</MtouchUseLlvm>
@@ -35,7 +36,7 @@
     <MtouchUseRefCounting>False</MtouchUseRefCounting>
     <MtouchOptimizePNGs>True</MtouchOptimizePNGs>
     <MtouchI18n />
-    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/E/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load /Users/lgl/vcremote/E/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
+    <MtouchExtraArgs> -cxx -gcc_flags "-L/Users/lgl/vcremote/G/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/ -lcimage.iOS -force_load /Users/lgl/vcremote/G/Program/Github/CrossStudy/pimage/cimage/cimage.iOS/Debug/i386/libcimage.iOS.a"</MtouchExtraArgs>
     <OptimizePNGs>True</OptimizePNGs>
     <MtouchFloat32>False</MtouchFloat32>
   </PropertyGroup>
