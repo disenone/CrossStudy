@@ -13,6 +13,8 @@ namespace pimage.Tools
         CImageByte LoadImageFromEmbeddedResource(string filename);
 
         byte[] ToPng(CImageByte img);
+
+        void openGallery();
     }
 
 }

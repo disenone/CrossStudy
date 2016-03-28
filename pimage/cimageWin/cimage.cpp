@@ -50,6 +50,7 @@ ImageMatchMerge::ImageMatchMerge(CImage_uint8_t* pbuf, int len)
 void ImageMatchMerge::setInput(CImage_uint8_t* pbuf, int len)
 {
 	m_pimgs.clear();
+	m_pimgs.reserve(len);
 	for (int i = 0; i < len; ++i)
 	{
 		printLog("img %d info: %s", i, pbuf[i].toString().c_str());

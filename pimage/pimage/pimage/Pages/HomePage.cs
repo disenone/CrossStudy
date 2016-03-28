@@ -25,10 +25,18 @@ namespace pimage.Pages
                     await this.Navigation.PushAsync(page);
                 });
 
+            mergeTest();
+
+            //             var imageInterface = DependencyService.Get<ImageIO>();
+            // 
+            //             imageInterface.openGallery();
+        }
+
+        private void mergeTest()
+        {
             var cimg = new cimage();
 
-
-            foreach(int i in new int[] {1, 2, 3} )
+            foreach (int i in new int[] { 1, 2, 3 })
             {
                 var bimgs = DependencyService.Get<ImageIO>().LoadImageFromEmbeddedResource(
                     i.ToString() + ".PNG");
@@ -39,6 +47,8 @@ namespace pimage.Pages
 
             var ret = DependencyService.Get<ImageIO>().ToPng(CImageConverter.CImageBufferToByte(cimg.Ret));
 
+            Debug.WriteLine("ret info: " + cimg.Ret.Width.ToString() + " " + cimg.Ret.Height.ToString());
+
             var stream = new MemoryStream(ret);
             stream.Position = 0;
             Debug.WriteLine("stream info: " + stream.Length.ToString());
@@ -46,20 +56,22 @@ namespace pimage.Pages
             Image image = new Image
             {
                 Source = ImageSource.FromStream(() => stream),
-                VerticalOptions = LayoutOptions.CenterAndExpand
+                VerticalOptions = LayoutOptions.CenterAndExpand,
             };
-
             Debug.WriteLine("Image info: " + image.Width.ToString() + " " + image.Height.ToString());
 
             this.Title = "Image Show";
-            this.Content = new StackLayout
+            var layout = new StackLayout
             {
                 Children =
                 {
                     image
                 }
             };
-            
+
+            var scroll = new ScrollView();
+            scroll.Content = layout;
+            this.Content = scroll;
         }
 
     }

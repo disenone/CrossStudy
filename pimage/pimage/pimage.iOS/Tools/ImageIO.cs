@@ -52,7 +52,15 @@ namespace pimage.iOS.Tools
                  null, shouldInterpolate, CGColorRenderingIntent.Default);
 
             var uimg = UIImage.FromImage(cgImage);
+
+            Console.WriteLine("topng info: " + uimg.Size.ToString());
+
             return uimg.AsPNG().ToArray();
+        }
+
+        public void openGallery()
+        {
+
         }
     }
 }
