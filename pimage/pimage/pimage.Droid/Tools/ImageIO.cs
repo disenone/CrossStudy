@@ -45,5 +45,16 @@ namespace pimage.Droid.Tools
 
             return stream.ToArray();
         }
+
+        public void openGallery()
+        {
+            Toast.MakeText(Xamarin.Forms.Forms.Context, "Select max 20 images", ToastLength.Long).Show();
+            var imageIntent = new Intent(Intent.ActionPick);
+            imageIntent.SetType("image/*");
+            imageIntent.PutExtra(Intent.ExtraAllowMultiple, true);
+            imageIntent.SetAction(Intent.ActionGetContent);
+            ((Activity)Xamarin.Forms.Forms.Context).StartActivityForResult(
+                Intent.CreateChooser(imageIntent, "Select photo"), 0);
+        }
     }
 }
